@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ePF-Mh-sfY">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="J5n-gm-BFU">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -90,13 +90,14 @@
                             <constraint firstItem="Kpl-7P-d41" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="nTH-Gz-9n0"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="" image="tab_editorial_active" id="C9P-uU-Xl0"/>
                     <connections>
                         <outlet property="tableView" destination="Kpl-7P-d41" id="faY-ml-EBc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="37.681159420289859" y="-28.125"/>
+            <point key="canvasLocation" x="-784" y="-665"/>
         </scene>
         <!--Profile-->
         <scene sceneID="LIf-Uk-Ngr">
@@ -165,11 +166,35 @@
                             <constraint firstItem="qPX-Dv-ts8" firstAttribute="leading" secondItem="b6b-fM-3WR" secondAttribute="leading" id="zHA-w9-eyO"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="" image="tab_profile_active" id="Ynq-og-Qcv"/>
                     <navigationItem key="navigationItem" title="Title" id="2Fr-Bt-mgu" userLabel="Navigation Item"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8uj-A9-m0g" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-784" y="-28"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="HOk-vf-gGj">
+            <objects>
+                <tabBarController id="J5n-gm-BFU" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="AZW-bz-bvp">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" name="YP Black"/>
+                        <color key="tintColor" name="YP White"/>
+                        <color key="selectedImageTintColor" name="YP White"/>
+                        <tabBarAppearance key="standardAppearance">
+                            <color key="backgroundColor" name="YP Black"/>
+                        </tabBarAppearance>
+                    </tabBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="OIj-v8-V6h"/>
+                        <segue destination="ePF-Mh-sfY" kind="relationship" relationship="viewControllers" id="7ij-pb-K5o"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vrn-1G-6Hb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1887" y="-370"/>
         </scene>
     </scenes>
     <resources>
@@ -177,6 +202,8 @@
         <image name="avatar" width="70" height="70"/>
         <image name="like_button_on" width="42" height="42"/>
         <image name="logout_button" width="44" height="44"/>
+        <image name="tab_editorial_active" width="30" height="30"/>
+        <image name="tab_profile_active" width="30" height="30"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
