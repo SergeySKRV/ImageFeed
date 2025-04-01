@@ -109,7 +109,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cpa-yo-bI9">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="414" minimumZoomScale="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="cpa-yo-bI9">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="GGD-Ep-VZA">
@@ -123,7 +123,7 @@
                                     <outlet property="delegate" destination="JC7-0q-X07" id="IwW-wx-eIX"/>
                                 </connections>
                             </scrollView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GZj-Tz-OK8">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GZj-Tz-OK8" userLabel="Back Button">
                                 <rect key="frame" x="8" y="8" width="48" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="mxR-IG-ae5"/>
@@ -135,6 +135,18 @@
                                     <action selector="didTapBackButton" destination="JC7-0q-X07" eventType="touchUpInside" id="ebE-d4-JaT"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ER1-R7-JdG" userLabel="Share Button">
+                                <rect key="frame" x="182" y="829" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="6qH-UO-eD0"/>
+                                    <constraint firstAttribute="width" constant="50" id="q18-Ml-uJt"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" image="share_button"/>
+                                <connections>
+                                    <action selector="didTapShareButton:" destination="JC7-0q-X07" eventType="touchUpInside" id="SPx-au-QHI"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="GPf-hI-IJV"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -142,8 +154,10 @@
                             <constraint firstItem="GZj-Tz-OK8" firstAttribute="top" secondItem="GPf-hI-IJV" secondAttribute="top" constant="8" id="JjP-Fr-SWS"/>
                             <constraint firstItem="cpa-yo-bI9" firstAttribute="trailing" secondItem="GPf-hI-IJV" secondAttribute="trailing" id="LzI-GE-idX"/>
                             <constraint firstItem="cpa-yo-bI9" firstAttribute="top" secondItem="nSP-4h-aeL" secondAttribute="top" id="Qvi-5p-tmQ"/>
+                            <constraint firstItem="GPf-hI-IJV" firstAttribute="bottom" secondItem="ER1-R7-JdG" secondAttribute="bottom" constant="17" id="RPI-ZT-VgM"/>
                             <constraint firstAttribute="bottom" secondItem="cpa-yo-bI9" secondAttribute="bottom" id="Tdz-Iv-7PI"/>
                             <constraint firstItem="GZj-Tz-OK8" firstAttribute="leading" secondItem="GPf-hI-IJV" secondAttribute="leading" constant="8" id="VYH-kH-Swm"/>
+                            <constraint firstItem="ER1-R7-JdG" firstAttribute="centerX" secondItem="GPf-hI-IJV" secondAttribute="centerX" id="ixn-qU-K7G"/>
                             <constraint firstItem="cpa-yo-bI9" firstAttribute="leading" secondItem="GPf-hI-IJV" secondAttribute="leading" id="ziC-fi-j8Y"/>
                         </constraints>
                     </view>
@@ -261,6 +275,7 @@
         <image name="like_button_on" width="42" height="42"/>
         <image name="logout_button" width="44" height="44"/>
         <image name="nav_back_button_white" width="24" height="24"/>
+        <image name="share_button" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
         <image name="tab_profile_active" width="30" height="30"/>
         <namedColor name="YP Black">
