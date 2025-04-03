@@ -11,6 +11,7 @@ final class ImagesListViewController: UIViewController {
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter
