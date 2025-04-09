@@ -103,5 +103,6 @@ final class ProfileViewController: UIViewController {
     // MARK: - Actions
     @objc
     private func didTapLogoutButton() {
+        //TODO: Реализовать логику кнопки
     }
 }
