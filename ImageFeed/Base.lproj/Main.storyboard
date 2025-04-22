@@ -233,9 +233,10 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="48" id="9A8-9Y-FKw"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                 <color key="tintColor" name="ypBlack"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Войти"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal" title="Войти"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                         <integer key="value" value="16"/>
@@ -243,7 +244,7 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="hhr-bb-aQm" kind="presentation" identifier="ShowWebView" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="kdk-3M-rwo"/>
+                                    <segue destination="hhr-bb-aQm" kind="show" identifier="ShowWebView" id="kdk-3M-rwo"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -280,32 +281,26 @@
                                     <wkPreferences key="preferences"/>
                                 </wkWebViewConfiguration>
                             </wkWebView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oLs-QA-RTi">
-                                <rect key="frame" x="0.0" y="0.0" width="64" height="44"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="877-7R-kEm"/>
-                                    <constraint firstAttribute="width" constant="64" id="bXo-m9-Bfx"/>
-                                </constraints>
-                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                <state key="normal" image="nav_back_button"/>
-                                <connections>
-                                    <action selector="didTapBackButton:" destination="hhr-bb-aQm" eventType="touchUpInside" id="2Xz-ho-K1J"/>
-                                </connections>
-                            </button>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Uyf-ra-AOI">
+                                <rect key="frame" x="0.0" y="92" width="414" height="4"/>
+                                <color key="progressTintColor" name="ypBlack"/>
+                            </progressView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="QtR-wf-SeG"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="oLs-QA-RTi" firstAttribute="leading" secondItem="QtR-wf-SeG" secondAttribute="leading" id="0pI-YN-hUZ"/>
                             <constraint firstItem="UDm-0V-eGj" firstAttribute="top" secondItem="Sjg-pR-TQG" secondAttribute="top" id="3ED-Ac-E8c"/>
                             <constraint firstItem="UDm-0V-eGj" firstAttribute="leading" secondItem="Sjg-pR-TQG" secondAttribute="leading" id="967-9Z-UVf"/>
                             <constraint firstAttribute="trailing" secondItem="UDm-0V-eGj" secondAttribute="trailing" id="G8s-SA-szI"/>
-                            <constraint firstItem="oLs-QA-RTi" firstAttribute="top" secondItem="QtR-wf-SeG" secondAttribute="top" id="ePb-yu-3UW"/>
+                            <constraint firstItem="Uyf-ra-AOI" firstAttribute="top" secondItem="QtR-wf-SeG" secondAttribute="top" id="OI9-8Z-gRP"/>
+                            <constraint firstItem="Uyf-ra-AOI" firstAttribute="leading" secondItem="QtR-wf-SeG" secondAttribute="leading" id="bj0-ON-9rc"/>
                             <constraint firstAttribute="bottom" secondItem="UDm-0V-eGj" secondAttribute="bottom" id="hwG-4P-hTy"/>
+                            <constraint firstItem="QtR-wf-SeG" firstAttribute="trailing" secondItem="Uyf-ra-AOI" secondAttribute="trailing" id="yix-5Y-TMq"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="fyf-t6-PIP"/>
                     <connections>
+                        <outlet property="progressView" destination="Uyf-ra-AOI" id="iV0-rp-h2L"/>
                         <outlet property="webView" destination="UDm-0V-eGj" id="9ch-W5-8J6"/>
                     </connections>
                 </viewController>
@@ -336,7 +331,6 @@
         <image name="0" width="1600" height="1059"/>
         <image name="auth_screen_logo" width="60" height="60"/>
         <image name="like_button_on" width="42" height="42"/>
-        <image name="nav_back_button" width="24" height="24"/>
         <image name="nav_back_button_white" width="24" height="24"/>
         <image name="share_button" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
