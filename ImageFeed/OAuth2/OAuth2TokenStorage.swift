@@ -1,14 +1,15 @@
 import Foundation
 
+// MARK: - Class
+
 final class OAuth2TokenStorage {
     
-    // MARK: - Singleton
-    
     static let shared = OAuth2TokenStorage()
+    private init() {}
     
     // MARK: - Private Properties
     
-    private let tokenKey = "OAuth2Token"
+    private let tokenKey = "oauth2_access_token"
     
     // MARK: - Public Properties
     
@@ -17,13 +18,17 @@ final class OAuth2TokenStorage {
             UserDefaults.standard.string(forKey: tokenKey)
         }
         set {
-            UserDefaults.standard.set(newValue, forKey: tokenKey)
+            if let newValue = newValue {
+                UserDefaults.standard.set(newValue, forKey: tokenKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: tokenKey)
+            }
         }
     }
     
     // MARK: - Public Methods
     
-    func clearToken() {
+    func removeToken() {
         UserDefaults.standard.removeObject(forKey: tokenKey)
     }
 }

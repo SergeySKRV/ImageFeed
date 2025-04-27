@@ -1,7 +1,11 @@
 import UIKit
 
+// MARK: - Class
+
 final class ProfileViewController: UIViewController {
+    
     // MARK: - UI Elements
+    
     private lazy var profileImage: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -51,6 +55,7 @@ final class ProfileViewController: UIViewController {
     }()
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -59,6 +64,7 @@ final class ProfileViewController: UIViewController {
     }
     
     // MARK: - Setup Methods
+    
     private func setupView() {
         view.backgroundColor = UIColor(named: "ypBlack")
     }
@@ -70,6 +76,7 @@ final class ProfileViewController: UIViewController {
     }
     
     // MARK: - Constraints
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             // Profile Image (70x70)
@@ -101,8 +108,10 @@ final class ProfileViewController: UIViewController {
     }
     
     // MARK: - Actions
+    
     @objc
     private func didTapLogoutButton() {
-        //TODO: Реализовать логику кнопки
+        OAuth2TokenStorage.shared.removeToken()
+        performSegue(withIdentifier: "logoutSegue", sender: nil)
     }
 }
