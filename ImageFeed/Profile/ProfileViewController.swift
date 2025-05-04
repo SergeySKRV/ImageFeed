@@ -21,7 +21,7 @@ final class ProfileViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Екатерина Новикова"
         label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
-        label.textColor = UIColor(named: "ypWhite")
+        label.textColor = UIColor.ypWhite
         return label
     }()
     
@@ -30,7 +30,7 @@ final class ProfileViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "@ekaterina_nov"
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor(named: "ypGray")
+        label.textColor = UIColor.ypGray
         return label
     }()
     
@@ -39,7 +39,7 @@ final class ProfileViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Hello, world!"
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor(named: "ypWhite")
+        label.textColor = UIColor.ypWhite
         label.numberOfLines = 0
         return label
     }()
@@ -50,7 +50,7 @@ final class ProfileViewController: UIViewController {
             target: self,
             action: #selector(didTapLogoutButton))
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = UIColor(named: "ypRed")
+        button.tintColor = UIColor.ypRed
         return button
     }()
     
@@ -66,7 +66,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Setup Methods
     
     private func setupView() {
-        view.backgroundColor = UIColor(named: "ypBlack")
+        view.backgroundColor = UIColor.ypBlack
     }
     
     private func setupContent() {

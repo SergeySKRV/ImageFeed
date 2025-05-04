@@ -1,10 +1,6 @@
 import UIKit
 import WebKit
 
-// MARK: - Constants
-
-fileprivate let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-
 // MARK: - Protocol
 
 protocol WebViewViewControllerDelegate: AnyObject {
@@ -27,7 +23,7 @@ final class WebViewViewController: UIViewController {
         
         webView.navigationDelegate = self
         
-        var urlComponents = URLComponents(string: unsplashAuthorizeURLString)!
+        var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString)!
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),
             URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),

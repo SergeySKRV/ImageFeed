@@ -13,6 +13,7 @@
 		7D9CFA4C28DDEE8000D971A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7D9CFA4B28DDEE8000D971A7 /* Assets.xcassets */; };
 		7D9CFA4F28DDEE8000D971A7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7D9CFA4D28DDEE8000D971A7 /* LaunchScreen.storyboard */; };
 		901390A82DBEAD2500352D1D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 901390A72DBEAD2500352D1D /* WebKit.framework */; };
+		901390AA2DC7D4E600352D1D /* UIColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901390A92DC7D4E600352D1D /* UIColors.swift */; };
 		903A891A2DAC2C5400E66612 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903A89192DAC2C5400E66612 /* Constants.swift */; };
 		903A891D2DB025F500E66612 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903A891C2DB025F500E66612 /* AuthViewController.swift */; };
 		903A891F2DB0270200E66612 /* WebViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903A891E2DB0270200E66612 /* WebViewViewController.swift */; };
@@ -36,6 +37,7 @@
 		7D9CFA4E28DDEE8000D971A7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7D9CFA5028DDEE8000D971A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		901390A72DBEAD2500352D1D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		901390A92DC7D4E600352D1D /* UIColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColors.swift; sourceTree = "<group>"; };
 		903A89192DAC2C5400E66612 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		903A891C2DB025F500E66612 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		903A891E2DB0270200E66612 /* WebViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewViewController.swift; sourceTree = "<group>"; };
@@ -85,6 +87,7 @@
 				7D9CFA4228DDEE7F00D971A7 /* AppDelegate.swift */,
 				7D9CFA4428DDEE7F00D971A7 /* SceneDelegate.swift */,
 				903A89192DAC2C5400E66612 /* Constants.swift */,
+				901390A92DC7D4E600352D1D /* UIColors.swift */,
 				903A89202DB80A1200E66612 /* URLSession+data.swift */,
 				903A89982DBD7DCA00E66612 /* SplashViewController */,
 				90FC97572D9B35A200FB04E9 /* SingleImage */,
@@ -243,6 +246,7 @@
 				903A89262DB8128500E66612 /* OAuth2TokenStorage.swift in Sources */,
 				7D9CFA4328DDEE7F00D971A7 /* AppDelegate.swift in Sources */,
 				90FC97532D9B251E00FB04E9 /* ImagesListCell.swift in Sources */,
+				901390AA2DC7D4E600352D1D /* UIColors.swift in Sources */,
 				90FC97562D9B294500FB04E9 /* ProfileViewController.swift in Sources */,
 				903A899A2DBD7DFB00E66612 /* SplashViewController.swift in Sources */,
 				903A891F2DB0270200E66612 /* WebViewViewController.swift in Sources */,

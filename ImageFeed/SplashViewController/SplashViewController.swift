@@ -1,5 +1,7 @@
 import UIKit
 
+// MARK: - Class
+
 final class SplashViewController: UIViewController {
     
     // MARK: - Constants
@@ -8,7 +10,7 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Properties
     
-    private let oauth2Service = OAuth2Service.shared
+    private let oauthService = OAuth2Service.shared
     private let storage = OAuth2TokenStorage.shared
     
     // MARK: - Lifecycle
@@ -70,8 +72,8 @@ extension SplashViewController {
 
 extension SplashViewController: AuthViewControllerDelegate {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
-        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
-            guard let self = self else { return }
+        oauthService.fetchOAuthToken(code: code) { [weak self] result in
+            guard let self else { return }
             
             switch result {
             case .success(let token):
