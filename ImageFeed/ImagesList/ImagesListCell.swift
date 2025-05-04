@@ -1,19 +1,25 @@
 import UIKit
 
+// MARK: - Class
+
 final class ImagesListCell: UITableViewCell {
     // MARK: - Static Properties
+    
     static let reuseIdentifier = "ImagesListCell"
     
     // MARK: - IBOutlets
+    
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var likeButton: UIButton!
     @IBOutlet weak var cellImage: UIImageView!
     
     // MARK: - Private Properties
+    
     private var gradientLayer: CAGradientLayer?
     private let gradientHeight: CGFloat = 30
     
     // MARK: - Lifecycle
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         configureCell()
@@ -31,6 +37,7 @@ final class ImagesListCell: UITableViewCell {
     }
     
     // MARK: - Configuration
+    
     private func configureCell() {
         dateLabel.textColor = .white
         dateLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
@@ -39,6 +46,7 @@ final class ImagesListCell: UITableViewCell {
     }
     
     // MARK: - Gradient Setup
+    
     private func setupImageGradient() {
         guard gradientLayer == nil else { return }
         
@@ -58,6 +66,7 @@ final class ImagesListCell: UITableViewCell {
     }
     
     // MARK: - Layout
+    
     func updateGradientFrame() {
         guard cellImage.bounds.size != .zero else { return }
         

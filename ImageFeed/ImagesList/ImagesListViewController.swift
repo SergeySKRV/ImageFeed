@@ -1,10 +1,15 @@
 import UIKit
 
+// MARK: - Class
+
 final class ImagesListViewController: UIViewController {
+    
     // MARK: - IBOutlets
+    
     @IBOutlet private var tableView: UITableView!
     
     // MARK: - Private Properties
+    
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
@@ -18,6 +23,7 @@ final class ImagesListViewController: UIViewController {
     }()
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -40,8 +46,9 @@ final class ImagesListViewController: UIViewController {
             super.prepare(for: segue, sender: sender)
         }
     }
-
+    
     // MARK: - Private Methods
+    
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         guard let image = UIImage(named: photosName[indexPath.row]) else {
             return
@@ -59,6 +66,7 @@ final class ImagesListViewController: UIViewController {
 }
 
 // MARK: - UITableViewDataSource
+
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         photosName.count
@@ -78,6 +86,7 @@ extension ImagesListViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
+
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
