@@ -39,7 +39,7 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Show Areas
     
-    private func showAuthorizedArea() {
+    private func showAuthorizedArea(with profile: Profile) {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {
             assertionFailure("Unable to get UIWindow")
@@ -47,6 +47,9 @@ final class SplashViewController: UIViewController {
         }
         
         let tabBarViewController = TabBarController()
+        if let profileVC = tabBarViewController.viewControllers?.first(where: { $0 is ProfileViewController}) as? ProfileViewController {
+            profileVC.username = profile.username
+        }
         window.rootViewController = tabBarViewController
         
         UIView.transition(
@@ -99,13 +102,14 @@ extension SplashViewController: AuthViewControllerDelegate {
     
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
+        
         profileService.fetchProfile(token) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
             guard let self else { return }
             switch result {
             case .success(let profile):
                 ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
-                self.showAuthorizedArea()
+                self.showAuthorizedArea(with: profile)
             case .failure(let error):
                 let alert = buildAllert(
                     withTitle: "Что-то пошло не так",

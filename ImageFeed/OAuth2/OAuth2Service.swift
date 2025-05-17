@@ -40,9 +40,14 @@ final class OAuth2Service {
             switch result {
             case .success(let tokenResponse):
                 completion(.success(tokenResponse.accessToken))
-            case .failure(let error):
-                AppLogger.error("Error fetching token: \(error)" as! Error)
-                completion(.failure(error))
+            case .failure(_):
+                let contextError = NSError(
+                    domain: "OAuth2Service.fetchAuthToken",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Error fetching token: $error.localizedDescription)"]
+                )
+                AppLogger.error(contextError)
+                completion(.failure(contextError))
             }
         }
         
@@ -53,7 +58,12 @@ final class OAuth2Service {
     
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: Constants.oauthTokenURL) else {
-            AppLogger.error("Error creating URLComponents" as! Error)
+            let urlComponentsError = NSError(
+                domain: "OAuth2Service",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey : "Error creating URLComponents"]
+            )
+            AppLogger.error(urlComponentsError)
             return nil
         }
         urlComponents.queryItems = [
@@ -64,13 +74,16 @@ final class OAuth2Service {
             URLQueryItem(name: "redirect_uri", value: Constants.redirectURI)
         ]
         guard let url = urlComponents.url else {
-            AppLogger.error("Error creating URL" as! Error)
+            let urlCreationError = NSError(
+                domain: "OAuth2Service",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey : "Error creating URL"]
+            )
+            AppLogger.error(urlCreationError)
             return nil
         }
         var request = URLRequest(url: url)
         request.httpMethod = HTTPMethod.post.rawValue
         return request
     }
-    
 }
-

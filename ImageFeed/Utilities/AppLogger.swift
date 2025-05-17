@@ -10,12 +10,12 @@ final class AppLogger {
     }
 
     static func log(level: Level, _ message: String, in caller: String = #function) {
-        print("[\(level.rawValue)] [$caller]: $message)")
+        print("[\(level.rawValue)] [\(caller)]: \(message)")
     }
 
     static func error(_ error: Error, data: Data? = nil, in caller: String = #function) {
-        if let data = data, let _ = String(data: data, encoding: .utf8) {
-            log(level: .error, "$error.localizedDescription): $string)", in: caller)
+        if let data = data, let string = String(data: data, encoding: .utf8) {
+            log(level: .error, "\(error.localizedDescription): \(string)", in: caller)
         } else {
             log(level: .error, error.localizedDescription, in: caller)
         }

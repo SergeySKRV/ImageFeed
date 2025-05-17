@@ -95,6 +95,4 @@ final class ProfileService {
 
         return request
     }
-    
 }
-

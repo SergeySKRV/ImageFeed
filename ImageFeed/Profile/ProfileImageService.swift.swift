@@ -41,54 +41,67 @@ final class ProfileImageService {
     
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
+        
+        do {
+            let token = try validateToken()
+            task?.cancel()
+            guard let request = makeUrlRequest(for: username, with: token) else {
+                throw ProfileImageServiceErrors.makeRequestFailed
+            }
+            executeRequest(request, completion: completion)
+        } catch {
+            AppLogger.error(error)
+            completion(.failure(error))
+        }
+    }
+    
+    func clearAvatarURL() {
+        avatarURL = nil
+    }
+    
+    // MARK: - Private Methods
+    
+    private func validateToken() throws -> String {
         guard let token = oauth2TokenStorage.string(forKey: Constants.keychainOAuthTokenKeyName) else {
-            AppLogger.error(ProfileImageServiceErrors.invalidToken)
-            completion(.failure(ProfileImageServiceErrors.invalidToken))
-            return
+            throw ProfileImageServiceErrors.invalidToken
         }
-        
-        task?.cancel()
-        
-        guard let request = makeUrlRequestForImage(username: username, token: token) else {
-            AppLogger.error(ProfileImageServiceErrors.makeRequestFailed)
-            completion(.failure(ProfileImageServiceErrors.makeRequestFailed))
-            return
-        }
-        
-        let task = urlSession.objectTask(for: request) {[weak self] (response: Result<PublicProfileResponse, Error>) in
+        return token
+    }
+    
+    private func makeUrlRequest(for username: String, with token: String) -> URLRequest? {
+        guard let defaultURL = Constants.defaultBaseURL else { return nil }
+        let url = defaultURL.appendingPathComponent(publicProfileApiURL.replacingOccurrences(of: ":username", with: username))
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.get.rawValue
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+    
+    private func executeRequest(_ request: URLRequest, completion: @escaping (Result<String, Error>) -> Void) {
+        let task = urlSession.objectTask(for: request) { [weak self] (response: Result<PublicProfileResponse, Error>) in
             self?.task = nil
-            
             switch response {
             case .success(let profileResponse):
-                self?.avatarURL = profileResponse.profileImage.large
+                self?.handleSuccessResponse(profileResponse)
                 completion(.success(profileResponse.profileImage.large))
-                NotificationCenter.default
-                    .post(
-                        name: ProfileImageService.didChangeNotification,
-                        object: self,
-                        userInfo: ["URL": profileResponse.profileImage.large]
-                    )
+                self?.notifyAvatarChanged(url: profileResponse.profileImage.large)
             case .failure(let error):
-                AppLogger.error(error)
                 completion(.failure(error))
             }
         }
-        
         self.task = task
         task.resume()
     }
     
-    private func makeUrlRequestForImage(username: String, token: String) -> URLRequest? {
-        guard let defaultURL = Constants.defaultBaseURL else {
-            return nil
-        }
-        
-        let url = defaultURL.appendingPathComponent(self.publicProfileApiURL.replacingOccurrences(of: ":username", with: username))
-        var request = URLRequest(url: url)
-        request.httpMethod = HTTPMethod.get.rawValue
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
-        return request
+    private func handleSuccessResponse(_ response: PublicProfileResponse) {
+        avatarURL = response.profileImage.large
     }
     
+    private func notifyAvatarChanged(url: String) {
+        NotificationCenter.default.post(
+            name: ProfileImageService.didChangeNotification,
+            object: self,
+            userInfo: ["URL": url]
+        )
+    }
 }

@@ -106,8 +106,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
             case .failure(let error):
                 AppLogger.error(error)
                 let alert = buildAllert(
-                    withTitle: "Ошибка",
-                    andMessage: "Не удалось войти. Попробуйте ещё раз."
+                    withTitle: AuthViewControllerConstants.errorAlertTitle,
+                    andMessage: AuthViewControllerConstants.errorAlertMessage
                 )
                 self.present(alert, animated: true)
             }

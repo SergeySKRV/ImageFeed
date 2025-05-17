@@ -4,6 +4,15 @@ import SwiftKeychainWrapper
 
 final class ProfileViewController: UIViewController {
 
+    // MARK: - Properties
+    var username: String? {
+        didSet {
+            if isViewLoaded {
+                updateAvatarIfNeeded()
+            }
+        }
+    }
+
     private var profileService: ProfileService = ProfileService.shared
     private var profileImageServiceObserver: NSObjectProtocol?
 
@@ -57,8 +66,7 @@ final class ProfileViewController: UIViewController {
         setupUI()
         setupConstraints()
         subscribeToAvatarUpdates()
-        updateProfileData()
-        updateAvatar()
+        fetchProfileAndSetupUI()
     }
 
     // MARK: - Setup
@@ -96,15 +104,49 @@ final class ProfileViewController: UIViewController {
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
         KeychainWrapper.standard.removeObject(forKey: Constants.keychainOAuthTokenKeyName)
+        ProfileImageService.shared.clearAvatarURL()
+
         guard let window = UIApplication.shared.windows.first else { return }
+
         let authViewController = AuthViewController()
         let navigationController = UINavigationController(rootViewController: authViewController)
+
         window.rootViewController = navigationController
-        UIView.transition(with: window,
-                          duration: 0.3,
-                          options: .transitionCrossDissolve,
-                          animations: nil,
-                          completion: nil)
+
+        UIView.transition(
+            with: window,
+            duration: 0.3,
+            options: .transitionCrossDissolve,
+            animations: nil,
+            completion: nil
+        )
+    }
+
+    // MARK: - Fetch Profile and Avatar
+    private func fetchProfileAndSetupUI() {
+        guard let token = KeychainWrapper.standard.string(forKey: Constants.keychainOAuthTokenKeyName) else {
+            AppLogger.error(NSError(domain: "ProfileViewController", code: -1, userInfo: [NSLocalizedDescriptionKey: "No token found"]))
+            return
+        }
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+
+            switch result {
+            case .success(let profile):
+                self.username = profile.username
+                self.updateProfileData()
+                self.updateAvatarIfNeeded()
+            case .failure(let error):
+                AppLogger.error(error)
+                let alert = buildAllert(
+                    withTitle: "Ошибка",
+                    andMessage: "Не удалось загрузить профиль"
+                )
+                self.present(alert, animated: true)
+            }
+        }
     }
 
     // MARK: - Profile Updates
@@ -133,7 +175,12 @@ final class ProfileViewController: UIViewController {
     private func updateAvatar() {
         guard let profileImageURL = ProfileImageService.shared.avatarURL,
               let url = URL(string: profileImageURL) else { return }
-        AppLogger.info("Updating avatar from $url)")
+        AppLogger.info("Updating avatar from \(url)")
         avatarImageView.kf.setImage(with: url)
+    }
+
+    private func updateAvatarIfNeeded() {
+        guard let username else { return }
+        ProfileImageService.shared.fetchProfileImageURL(username: username) { _ in }
     }
 }

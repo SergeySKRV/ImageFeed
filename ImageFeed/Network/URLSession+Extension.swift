@@ -45,7 +45,6 @@ extension URLSession {
                     let response = try decoder.decode(T.self, from: data)
                     completion(.success(response))
                 } catch {
-                    // Создаём объект Error с описанием ошибки
                     let decodingError = NSError(
                         domain: "DecodingError",
                         code: -1,
@@ -76,8 +75,8 @@ extension URLSession {
 
         let statusCode = httpResponse.statusCode
 
-        guard (200..<300).contains(statusCode), let data = data else {
-            if let data = data, let dataString = String(data: data, encoding: .utf8) {
+        guard (200..<300).contains(statusCode), let data else {
+            if let data, let dataString = String(data: data, encoding: .utf8) {
 
                 let responseDataError = NSError(
                     domain: "ResponseDataError",
