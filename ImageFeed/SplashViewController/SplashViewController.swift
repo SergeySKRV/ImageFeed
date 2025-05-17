@@ -1,104 +1,119 @@
 import UIKit
-import ProgressHUD
+import SwiftKeychainWrapper
 
-// MARK: - Class
+// MARK: - SplashViewController
 
 final class SplashViewController: UIViewController {
-    
-    // MARK: - Constants
-    
-    private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-    
     // MARK: - Properties
     
-    private let oauthService = OAuth2Service.shared
-    private let storage = OAuth2TokenStorage.shared
+    private var oauth2TokenStorage = KeychainWrapper.standard
+    private var profileService: ProfileService = ProfileService.shared
     
-    // MARK: - Lifecycle
+    // MARK: - UI Elements
+    
+    private lazy var logoImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(resource: .splashScreenLogo))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // MARK: - Life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupAppearance()
+        setupLayout()
+        setupConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let token = storage.token {
-            print("Token exists: \(token), switching to tab bar controller")
-            switchToTabBarController()
-        } else {
-            print("Token is nil, showing authentication screen")
-            performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
-        }
-    }
-    
-    // MARK: - Navigation
-    
-    private func switchToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid Configuration: No main window found.")
+        guard let token = oauth2TokenStorage.string(forKey: Constants.keychainOAuthTokenKeyName) else {
+            showUnauthorizedArea()
             return
         }
         
-        guard let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController") as? UITabBarController else {
-            assertionFailure("Invalid Configuration: TabBarViewController not found.")
+        fetchProfile(token)
+    }
+    
+    // MARK: - Show Areas
+    
+    private func showAuthorizedArea() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            assertionFailure("Unable to get UIWindow")
             return
         }
         
-        window.rootViewController = tabBarController
+        let tabBarViewController = TabBarController()
+        window.rootViewController = tabBarViewController
+        
+        UIView.transition(
+            with: window,
+            duration: 0.3,
+            options: .transitionCrossDissolve,
+            animations: nil,
+            completion: nil
+        )
     }
-}
-
-// MARK: - Segue Preparation
-
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthenticationScreenSegueIdentifier {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let authViewController = navigationController.viewControllers.first as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)")
-                return
-            }
-            authViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
+    
+    private func showUnauthorizedArea() {
+        let navigationViewController = UINavigationController()
+        navigationViewController.modalPresentationStyle = .fullScreen
+        
+        let authViewController = AuthViewController()
+        authViewController.delegate = self
+        navigationViewController.viewControllers = [authViewController]
+        
+        self.show(navigationViewController, sender: self)
+    }
+    
+    // MARK: - Configure UI Elements
+    
+    private func setupAppearance() {
+        view.backgroundColor = .ypBlack
+    }
+    
+    private func setupLayout() {
+        view.addSubviews(logoImageView)
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            logoImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 }
 
 // MARK: - AuthViewControllerDelegate
 
 extension SplashViewController: AuthViewControllerDelegate {
-    func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
-        ProgressHUD.animate()
-        oauthService.fetchOAuthToken(code: code) { [weak self] result in
-            guard let self else { return }
-            
-            ProgressHUD.dismiss()
-            
-            switch result {
-            case .success(let token):
-                print("Токен получен: \(token)")
-                self.storage.token = token
-                DispatchQueue.main.async {
-                    self.switchToTabBarController()
-                }
-            case .failure(let error):
-                print("Ошибка получения токена: \(error)")
-                self.showAlert(withTitle: "Ошибка", message: "Не удалось получить токен. Попробуйте снова.")
-            }
+    func didAuthenticate(_ vc: AuthViewController) {
+        guard let token = oauth2TokenStorage.string(forKey: Constants.keychainOAuthTokenKeyName) else {
+            return
         }
+        fetchProfile(token)
     }
     
-    // MARK: - Private Methods
-    
-    private func showAlert(withTitle title: String, message: String) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        present(alertController, animated: true, completion: nil)
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+            switch result {
+            case .success(let profile):
+                ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
+                self.showAuthorizedArea()
+            case .failure(let error):
+                let alert = buildAllert(
+                    withTitle: "Что-то пошло не так",
+                    andMessage: "Не удалось загрузить профиль"
+                )
+                self.present(alert, animated: true)
+                AppLogger.error(error)
+            }
+        }
     }
 }
