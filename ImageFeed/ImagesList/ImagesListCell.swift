@@ -1,29 +1,46 @@
 import UIKit
 
-// MARK: - Class
-
 final class ImagesListCell: UITableViewCell {
-    // MARK: - Static Properties
-    
     static let reuseIdentifier = "ImagesListCell"
     
-    // MARK: - IBOutlets
+    // MARK: - UI Elements
+    private lazy var cellImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 16
+        return imageView
+    }()
     
-    @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var likeButton: UIButton!
-    @IBOutlet weak var cellImage: UIImageView!
+    private lazy var dateLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .white
+        return label
+    }()
     
-    // MARK: - Private Properties
+    private lazy var likeButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.addTarget(self, action: #selector(didTapLikeButton), for: .touchUpInside)
+        return button
+    }()
     
-    private var gradientLayer: CAGradientLayer?
-    private let gradientHeight: CGFloat = 30
+    private lazy var gradientView: UIView = {
+        let view = UIView()
+        return view
+    }()
     
     // MARK: - Lifecycle
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+        setupGradient()
+    }
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        configureCell()
-        setupImageGradient()
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupUI()
+        setupGradient()
     }
     
     override func layoutSubviews() {
@@ -31,52 +48,68 @@ final class ImagesListCell: UITableViewCell {
         updateGradientFrame()
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        cellImage.image = nil
+    // MARK: - Setup UI
+    private func setupUI() {
+        backgroundColor = .clear
+        selectionStyle = .none
+        contentView.addSubviews(cellImageView, gradientView, dateLabel, likeButton)
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            cellImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            cellImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            cellImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            cellImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            
+            gradientView.leadingAnchor.constraint(equalTo: cellImageView.leadingAnchor),
+            gradientView.trailingAnchor.constraint(equalTo: cellImageView.trailingAnchor),
+            gradientView.bottomAnchor.constraint(equalTo: cellImageView.bottomAnchor),
+            gradientView.heightAnchor.constraint(equalToConstant: 30),
+            
+            dateLabel.leadingAnchor.constraint(equalTo: cellImageView.leadingAnchor, constant: 8),
+            dateLabel.bottomAnchor.constraint(equalTo: cellImageView.bottomAnchor, constant: -8),
+            
+            likeButton.topAnchor.constraint(equalTo: cellImageView.topAnchor),
+            likeButton.trailingAnchor.constraint(equalTo: cellImageView.trailingAnchor),
+            likeButton.widthAnchor.constraint(equalToConstant: 44),
+            likeButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+    }
+    
+    private func setupGradient() {
+        let gradient = CAGradientLayer()
+        gradient.colors = [
+            UIColor(red: 0.1, green: 0.11, blue: 0.13, alpha: 0).cgColor,
+            UIColor(red: 0.1, green: 0.11, blue: 0.13, alpha: 0.2).cgColor
+        ]
+        gradient.locations = [0, 1]
+        gradient.startPoint = CGPoint(x: 0.5, y: 0)
+        gradient.endPoint = CGPoint(x: 0.5, y: 1)
+        gradientView.layer.addSublayer(gradient)
+    }
+    
+    private func updateGradientFrame() {
+        if let gradient = gradientView.layer.sublayers?.first as? CAGradientLayer {
+            gradient.frame = gradientView.bounds
+        }
     }
     
     // MARK: - Configuration
-    
-    private func configureCell() {
-        dateLabel.textColor = .white
-        dateLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        cellImage.contentMode = .scaleAspectFill
-        cellImage.layer.masksToBounds = true
+    func configure(with image: UIImage, date: String, isLiked: Bool) {
+        cellImageView.image = image
+        dateLabel.text = date
+        setLikeButtonImage(isLiked: isLiked)
     }
     
-    // MARK: - Gradient Setup
-    
-    private func setupImageGradient() {
-        guard gradientLayer == nil else { return }
-        
-        let gradient = CAGradientLayer()
-        gradient.colors = [
-            UIColor(white: 0, alpha: 0.0).cgColor,
-            UIColor(white: 0, alpha: 0.3).cgColor,
-            UIColor(white: 0, alpha: 0.5).cgColor
-        ]
-        gradient.locations = [0, 0.7, 1]
-        gradient.startPoint = CGPoint(x: 0.5, y: 0)
-        gradient.endPoint = CGPoint(x: 0.5, y: 1)
-        gradient.name = "gradientLayer"
-        
-        cellImage.layer.addSublayer(gradient)
-        gradientLayer = gradient
+    private func setLikeButtonImage(isLiked: Bool) {
+        let imageName = isLiked ? "like_button_on" : "like_button_off"
+        let image = UIImage(named: imageName) ?? UIImage()
+        likeButton.setImage(image, for: .normal)
     }
     
-    // MARK: - Layout
-    
-    func updateGradientFrame() {
-        guard cellImage.bounds.size != .zero else { return }
-        
-        if gradientLayer == nil { setupImageGradient() }
-        
-        gradientLayer?.frame = CGRect(
-            x: 0,
-            y: cellImage.bounds.height - gradientHeight,
-            width: cellImage.bounds.width,
-            height: gradientHeight
-        )
+    @objc private func didTapLikeButton() {
+        //TODO: Implement like handling
     }
 }
