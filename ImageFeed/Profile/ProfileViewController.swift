@@ -1,117 +1,186 @@
 import UIKit
-
-// MARK: - Class
+import Kingfisher
+import SwiftKeychainWrapper
 
 final class ProfileViewController: UIViewController {
-    
+
+    // MARK: - Properties
+    var username: String? {
+        didSet {
+            if isViewLoaded {
+                updateAvatarIfNeeded()
+            }
+        }
+    }
+
+    private var profileService: ProfileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
+
     // MARK: - UI Elements
-    
-    private lazy var profileImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "avatar")
+    private lazy var avatarImageView: UIImageView = {
+        let imageView = UIImageView(
+            image: UIImage(systemName: "avatar")?
+                .withTintColor(.ypGray, renderingMode: .alwaysOriginal)
+        )
         imageView.layer.cornerRadius = 35
-        imageView.layer.masksToBounds = true
+        imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
-    
+
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Екатерина Новикова"
         label.font = UIFont.systemFont(ofSize: 23, weight: .bold)
-        label.textColor = UIColor.ypWhite
+        label.textColor = .ypWhite
         return label
     }()
-    
-    private lazy var usernameLabel: UILabel = {
+
+    private lazy var loginNameLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "@ekaterina_nov"
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor.ypGray
+        label.textColor = .ypGray
         return label
     }()
-    
+
     private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Hello, world!"
         label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor.ypWhite
+        label.textColor = .ypWhite
         label.numberOfLines = 0
         return label
     }()
-    
+
     private lazy var logoutButton: UIButton = {
-        let button = UIButton.systemButton(
-            with: UIImage(named: "logout_button")!,
-            target: self,
-            action: #selector(didTapLogoutButton))
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = UIColor.ypRed
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(resource: .logoutButton), for: .normal)
+        button.tintColor = .ypRed
         return button
     }()
-    
+
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupView()
-        setupContent()
+        setupUI()
         setupConstraints()
+        subscribeToAvatarUpdates()
+        fetchProfileAndSetupUI()
     }
-    
-    // MARK: - Setup Methods
-    
-    private func setupView() {
-        view.backgroundColor = UIColor.ypBlack
+
+    // MARK: - Setup
+    private func setupUI() {
+        view.backgroundColor = .ypBlack
+        view.addSubviews(avatarImageView, nameLabel, loginNameLabel, descriptionLabel, logoutButton)
+        logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
     }
-    
-    private func setupContent() {
-        [profileImage, logoutButton, nameLabel, usernameLabel, descriptionLabel].forEach {
-            view.addSubview($0)
-        }
-    }
-    
-    // MARK: - Constraints
-    
+
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Profile Image (70x70)
-            profileImage.widthAnchor.constraint(equalToConstant: 70),
-            profileImage.heightAnchor.constraint(equalToConstant: 70),
-            profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            profileImage.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            
-            // Logout Button
-            logoutButton.centerYAnchor.constraint(equalTo: profileImage.centerYAnchor),
-            logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
-            
-            // Name Label
-            nameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+            avatarImageView.widthAnchor.constraint(equalToConstant: 70),
+            avatarImageView.heightAnchor.constraint(equalToConstant: 70),
+            avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+
+            logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
+            logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+
+            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
             nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            
-            // Username Label
-            usernameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            usernameLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
-            usernameLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            
-            // Description Label
-            descriptionLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 8),
-            descriptionLabel.leadingAnchor.constraint(equalTo: profileImage.leadingAnchor),
+
+            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
+            loginNameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
+            loginNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+
+            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
+            descriptionLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             descriptionLabel.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
-    
+
     // MARK: - Actions
-    
-    @objc
-    private func didTapLogoutButton() {
-        OAuth2TokenStorage.shared.removeToken()
-        performSegue(withIdentifier: "logoutSegue", sender: nil)
+    @objc private func didTapLogoutButton() {
+        KeychainWrapper.standard.removeObject(forKey: Constants.keychainOAuthTokenKeyName)
+        ProfileImageService.shared.clearAvatarURL()
+
+        guard let window = UIApplication.shared.windows.first else { return }
+
+        let authViewController = AuthViewController()
+        let navigationController = UINavigationController(rootViewController: authViewController)
+
+        window.rootViewController = navigationController
+
+        UIView.transition(
+            with: window,
+            duration: 0.3,
+            options: .transitionCrossDissolve,
+            animations: nil,
+            completion: nil
+        )
+    }
+
+    // MARK: - Fetch Profile and Avatar
+    private func fetchProfileAndSetupUI() {
+        guard let token = KeychainWrapper.standard.string(forKey: Constants.keychainOAuthTokenKeyName) else {
+            AppLogger.error(NSError(domain: "ProfileViewController", code: -1, userInfo: [NSLocalizedDescriptionKey: "No token found"]))
+            return
+        }
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+
+            switch result {
+            case .success(let profile):
+                self.username = profile.username
+                self.updateProfileData()
+                self.updateAvatarIfNeeded()
+            case .failure(let error):
+                AppLogger.error(error)
+                let alert = buildAllert(
+                    withTitle: "Ошибка",
+                    andMessage: "Не удалось загрузить профиль"
+                )
+                self.present(alert, animated: true)
+            }
+        }
+    }
+
+    // MARK: - Profile Updates
+    private func subscribeToAvatarUpdates() {
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.updateAvatar()
+        }
+    }
+
+    private func updateProfileData() {
+        guard let profile = profileService.profile else {
+            nameLabel.text = ""
+            loginNameLabel.text = ""
+            descriptionLabel.text = ""
+            return
+        }
+        nameLabel.text = profile.fullName
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+
+    private func updateAvatar() {
+        guard let profileImageURL = ProfileImageService.shared.avatarURL,
+              let url = URL(string: profileImageURL) else { return }
+        AppLogger.info("Updating avatar from \(url)")
+        avatarImageView.kf.setImage(with: url)
+    }
+
+    private func updateAvatarIfNeeded() {
+        guard let username else { return }
+        ProfileImageService.shared.fetchProfileImageURL(username: username) { _ in }
     }
 }
