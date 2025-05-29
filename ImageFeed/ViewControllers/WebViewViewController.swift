@@ -29,6 +29,7 @@ final class WebViewViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: WebViewViewControllerDelegate?
+    
     private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: - Lifecycle
