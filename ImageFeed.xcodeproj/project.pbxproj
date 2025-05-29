@@ -116,16 +116,6 @@
 			isa = PBXGroup;
 			children = (
 				7D9CFA4128DDEE7F00D971A7 /* ImageFeed */,
-				901393F22DE8E0EE00352D1D /* Models */,
-				901393E22DE8DBB500352D1D /* Services */,
-				90FC97572D9B35A200FB04E9 /* ViewControllers */,
-				90FC97552D9B255F00FB04E9 /* Cells */,
-				901392C02DD8AB5B00352D1D /* Extension */,
-				901392BF2DD8AB0300352D1D /* Utilities */,
-				901393EC2DE8E0DD00352D1D /* Network */,
-				901392C12DD8AB8E00352D1D /* Constants */,
-				901393F82DE8E3D600352D1D /* Errors */,
-				903A89242DB810F900E66612 /* Auth */,
 				901390A62DBEAD2400352D1D /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -139,6 +129,16 @@
 				7D9CFA4828DDEE7F00D971A7 /* Main.storyboard */,
 				7D9CFA4D28DDEE8000D971A7 /* LaunchScreen.storyboard */,
 				7D9CFA5028DDEE8000D971A7 /* Info.plist */,
+				901393F22DE8E0EE00352D1D /* Models */,
+				901393E22DE8DBB500352D1D /* Services */,
+				90FC97572D9B35A200FB04E9 /* ViewControllers */,
+				90FC97552D9B255F00FB04E9 /* Cells */,
+				901392C02DD8AB5B00352D1D /* Extension */,
+				901392BF2DD8AB0300352D1D /* Utilities */,
+				901393EC2DE8E0DD00352D1D /* Network */,
+				901392C12DD8AB8E00352D1D /* Constants */,
+				903A89242DB810F900E66612 /* Auth */,
+				901393F82DE8E3D600352D1D /* Errors */,
 			);
 			path = ImageFeed;
 			sourceTree = "<group>";
