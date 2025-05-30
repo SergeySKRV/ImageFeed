@@ -14,7 +14,7 @@ final class ProfileLogoutService {
     private let profileImageService = ProfileImageService.shared
     private let profileService = ProfileService.shared
     private let imageListService = ImageListService.shared
-    private let oauthTokenStorage = Oauth2TokenStorage.shared
+    private let oauthTokenStorage = OAuth2TokenStorage.shared
     
     // MARK: - Lifecycle
     

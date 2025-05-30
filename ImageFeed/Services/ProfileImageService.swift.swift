@@ -13,7 +13,7 @@ final class ProfileImageService {
     private let publicProfileApiURL = ProfileImageServiceConstants.publicProfileApiURL
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
-    private var oauth2TokenStorage = Oauth2TokenStorage.shared
+    private var oauth2TokenStorage = OAuth2TokenStorage.shared
     
     // MARK: - Lifecycle
     

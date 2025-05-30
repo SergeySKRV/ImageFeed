@@ -128,7 +128,7 @@ extension WebViewViewController: WKNavigationDelegate {
     private func code(from navigationAction: WKNavigationAction) -> String? {
         guard
             let url = navigationAction.request.url,
-            url.isRedirectURLForOAuth
+            url.isOAuthRedirectURL
         else { return nil }
         
         return url.queryParameterValue(forKey: "code")

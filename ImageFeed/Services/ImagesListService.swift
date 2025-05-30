@@ -17,7 +17,7 @@ final class ImageListService {
     
     private(set) var photos: [Photo] = []
     private var lastLoadedPage: Int = 0
-    private var oauth2TokenStorage = Oauth2TokenStorage.shared
+    private var oauth2TokenStorage = OAuth2TokenStorage.shared
     private var task: URLSessionTask?
     private var urlSession = URLSession.shared
     private var isFetching = false

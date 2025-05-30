@@ -95,7 +95,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 delegate?.didAuthenticate(self)
             case .failure(let error):
                 AppLogger.error("Error fetching token: \(error)")
-                let alert = buildAllert(
+                let alert = buildAlert(
                     withTitle: AuthViewControllerConstants.errorAlertTitle,
                     andMessage: AuthViewControllerConstants.errorAlertMessage)
                 present(alert, animated: true)

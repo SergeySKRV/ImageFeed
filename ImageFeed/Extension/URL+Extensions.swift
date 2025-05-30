@@ -5,10 +5,10 @@ extension URL {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
             return nil
         }
-        return components.queryItems?.first{ $0.name == key }?.value
+        return components.queryItems?.first(where: { $0.name == key })?.value
     }
     
-    var isRedirectURLForOAuth: Bool {
+    var isOAuthRedirectURL: Bool {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
             return false
         }

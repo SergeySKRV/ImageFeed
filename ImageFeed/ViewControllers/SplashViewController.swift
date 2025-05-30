@@ -4,7 +4,7 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Properties
     
-    private var oauth2TokenStorage = Oauth2TokenStorage.shared
+    private var oauth2TokenStorage = OAuth2TokenStorage.shared
     private var profileService: ProfileService = ProfileService.shared
     
     // MARK: - UI Elements
@@ -84,7 +84,7 @@ final class SplashViewController: UIViewController {
                 ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
                 self.showAuthorizedArea()
             case .failure(let error):
-                let alert = buildAllert(
+                let alert = buildAlert(
                     withTitle: "Что-то пошло не так",
                     andMessage: "Не удалось загрузить профиль"
                 )

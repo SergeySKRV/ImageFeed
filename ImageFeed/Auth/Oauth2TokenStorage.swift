@@ -1,11 +1,11 @@
 import Foundation
 import SwiftKeychainWrapper
 
-final class Oauth2TokenStorage {
+final class OAuth2TokenStorage {
     
     // MARK: - Shared Instance
     
-    static let shared = Oauth2TokenStorage()
+    static let shared = OAuth2TokenStorage()
     
     // MARK: - Lifecycle
     

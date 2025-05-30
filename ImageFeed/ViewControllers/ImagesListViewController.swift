@@ -52,7 +52,7 @@ final class ImagesListViewController: UIViewController {
     private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         let photo = photos[indexPath.row]
         guard let photoUrl = URL(string: photo.thumbImageURL) else { return }
-        cell.configureWith(photoUrl, andDate: photo.createdAt, andIsLiked: photo.isLiked)
+        cell.configure(photoUrl, andDate: photo.createdAt, andIsLiked: photo.isLiked)
     }
     
     private func showSingleImage(for indexPath: IndexPath) {
@@ -164,7 +164,7 @@ extension ImagesListViewController: ImagesListCellDelegate {
                 UIBlockingProgressHUD.dismiss()
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
-                let alert = buildAllert(
+                let alert = buildAlert(
                     withTitle: LikeAllertCaptions.title,
                     andMessage: LikeAllertCaptions.message
                 )

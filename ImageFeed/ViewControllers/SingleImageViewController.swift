@@ -68,8 +68,7 @@ final class SingleImageViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .ypBlack
-        view.addSubviews(scrollView, backButton, shareButton)
-        scrollView.addSubview(imageView)
+        view.addSubviews(scrollView, backButton, shareButton, imageView)
         scrollView.addSubviews(imageView)
         backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(didTapShareButton), for: .touchUpInside)

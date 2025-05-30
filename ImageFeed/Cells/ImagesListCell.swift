@@ -69,23 +69,23 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - Configuration
     
-    func configureWith(_ imageUrl: URL, andDate date: Date?, andIsLiked isLiked: Bool) {
+    func configure(_ imageUrl: URL, andDate date: Date?, andIsLiked isLiked: Bool) {
         cellImage.kf.setImage(
             with: imageUrl,
             placeholder: UIImage(resource: .stub),
             options: []
         )
         if let date = date {
-            imageDate.text = date.imageCellDateString()
+            imageDate.text = date.formattedForImageCell()
         }
-        isLikedStatus.setImage(UIImage(named: getIsLikedImageName(isLiked: isLiked)), for: .normal)
+        isLikedStatus.setImage(UIImage(named: likeButtonImageName(isLiked: isLiked)), for: .normal)
     }
     
     func setIsLiked(isLiked: Bool) {
-        isLikedStatus.setImage(UIImage(named: getIsLikedImageName(isLiked: isLiked)), for: .normal)
+        isLikedStatus.setImage(UIImage(named: likeButtonImageName(isLiked: isLiked)), for: .normal)
     }
     
-    private func getIsLikedImageName(isLiked: Bool) -> String {
+    private func likeButtonImageName(isLiked: Bool) -> String {
         return isLiked ? "like_button_on" : "like_button_off"
     }
     
