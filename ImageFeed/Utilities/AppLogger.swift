@@ -1,35 +1,19 @@
 import Foundation
 
 final class AppLogger {
-    
-    enum Level: String {
-        case debug = "DEBUG"
-        case info = "INFO"
-        case warning = "WARNING"
-        case error = "ERROR"
-    }
-
-    static func log(level: Level, _ message: String, in caller: String = #function) {
-        print("[\(level.rawValue)] [\(caller)]: \(message)")
-    }
-
     static func error(_ error: Error, data: Data? = nil, in caller: String = #function) {
         if let data = data, let string = String(data: data, encoding: .utf8) {
-            log(level: .error, "\(error.localizedDescription): \(string)", in: caller)
+            print("ERROR: [\(caller)]: \(error.localizedDescription) with DATA: \(string)")
         } else {
-            log(level: .error, error.localizedDescription, in: caller)
+            print("ERROR: [\(caller)]: \(error.localizedDescription)")
         }
     }
-
-    static func debug(_ message: String, in caller: String = #function) {
-        log(level: .debug, message, in: caller)
+    
+    static func error(_ message: String, in caller: String = #function) {
+        print("ERROR: [\(caller)]: \(message)")
     }
-
+    
     static func info(_ message: String, in caller: String = #function) {
-        log(level: .info, message, in: caller)
-    }
-
-    static func warning(_ message: String, in caller: String = #function) {
-        log(level: .warning, message, in: caller)
+        print("INFO: [\(caller)]: \(message)")
     }
 }

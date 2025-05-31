@@ -1,13 +1,19 @@
 import UIKit
 import WebKit
 
+// MARK: - Delegate Protocol
+
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
+
+// MARK: - WebViewViewController
 
 final class WebViewViewController: UIViewController {
     
     // MARK: - UI Elements
+    
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
         return webView
@@ -21,53 +27,59 @@ final class WebViewViewController: UIViewController {
     }()
     
     // MARK: - Properties
+    
     weak var delegate: WebViewViewControllerDelegate?
+    
     private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupAppearance()
-        setupLayout()
+        
+        setupUI()
         setupConstraints()
-        setupVebView()
-        loadAuthView()
         setupProgressObservation()
+        setupWebView()
+        loadAuthView()
     }
     
-    // MARK: - Setup Methods
-    private func setupAppearance() {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent && !isBeingDismissed && !isMovingToParent {
+            delegate?.webViewViewControllerDidCancel(self)
+        }
+    }
+    
+    // MARK: - Setup UI
+    
+    private func setupUI() {
         view.backgroundColor = .ypWhite
-    }
-    
-    private func setupLayout() {
         view.addSubviews(webView, progressView)
-    }
-    
-    private func setupVebView() {
         webView.navigationDelegate = self
     }
     
-    private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            return
-        }
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-        guard let url = urlComponents.url else { return }
-        let request = URLRequest(url: url)
-        webView.load(request)
-        updateProgress()
+    private func setupConstraints() {
+        progressView.pin
+            .top(view.safeAreaLayoutGuide.topAnchor)
+            .leading(view.leadingAnchor)
+            .trailing(view.trailingAnchor)
+        
+        webView.pin
+            .top(view.topAnchor)
+            .leading(view.leadingAnchor)
+            .trailing(view.trailingAnchor)
+            .bottom(view.bottomAnchor)
     }
     
     private func setupProgressObservation() {
-        estimatedProgressObservation = webView.observe(\.estimatedProgress, options: []) { [weak self] _, _ in
-            self?.updateProgress()
-        }
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+             options: [],
+             changeHandler: { [weak self] _, _ in
+                 self?.updateProgress()
+             }
+        )
     }
     
     private func updateProgress() {
@@ -75,26 +87,36 @@ final class WebViewViewController: UIViewController {
         progressView.isHidden = fabs(webView.estimatedProgress - 1) <= 0.001
     }
     
-    // MARK: - Constraints
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+    private func setupWebView() {
+        webView.navigationDelegate = self
+    }
+    
+    private func loadAuthView() {
+        guard var urlComponents = URLComponents(string: WebViewViewControllerConstants.unsplashAuthorizeURLString) else {
+            return
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "client_id", value: Constants.accessKey),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: Constants.accessScope)
+        ]
+        
+        guard let url = urlComponents.url else {
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        webView.load(request)
+        updateProgress()
     }
 }
 
-// MARK: - WKNavigationDelegate
+//MARK: - WKNavigationDelegate
+
 extension WebViewViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView,
-                 decidePolicyFor navigationAction: WKNavigationAction,
-                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
         if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
@@ -106,9 +128,9 @@ extension WebViewViewController: WKNavigationDelegate {
     private func code(from navigationAction: WKNavigationAction) -> String? {
         guard
             let url = navigationAction.request.url,
-            let components = URLComponents(string: url.absoluteString),
-            components.path == WebViewConstants.redirectPath
+            url.isOAuthRedirectURL
         else { return nil }
-        return components.queryItems?.first(where: { $0.name == "code" })?.value
+        
+        return url.queryParameterValue(forKey: "code")
     }
 }

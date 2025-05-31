@@ -1,45 +1,9 @@
 import Foundation
 
-struct Profile {
-    let username: String
-    let firstName: String
-    let lastName: String?
-    var fullName: String {
-        "\(firstName) \(lastName ?? "")"
-    }
-    var loginName: String {
-        "@\(username)"
-    }
-    let bio: String?
-    
-    init(from profileResponse: ProfileResponse) {
-        username = profileResponse.username
-        firstName = profileResponse.firstName
-        lastName = profileResponse.lastName
-        bio = profileResponse.bio
-    }
-}
-
-// MARK: - Errors
-
-enum ProfileServiceError: Error {
-    case invalidRequest
-    case makeRequestFailed
-    
-}
-
-// MARK: - Response Object
-
-struct ProfileResponse: Decodable {
-    let username: String
-    let firstName: String
-    let lastName: String?
-    let bio: String?
-}
-
 // MARK: - ProfileService
 
 final class ProfileService {
+    
     // MARK: - Properties
     
     static let shared = ProfileService()
@@ -48,7 +12,7 @@ final class ProfileService {
     private var task: URLSessionTask?
     private(set) var profile: Profile?
     
-    // MARK: - Private constructors
+    // MARK: - Lifecycle
     
     private init() {}
     
@@ -59,18 +23,17 @@ final class ProfileService {
         
         task?.cancel()
         
-        guard let request = makeUrlRequestForCurrentUserInfo(token: token) else {
+        guard let request = makeRequest(token: token) else {
             AppLogger.error(ProfileServiceError.makeRequestFailed)
             completion(.failure(ProfileServiceError.makeRequestFailed))
             return
         }
         
-        let task = urlSession.objectTask(for: request) {[weak self] (response: Result<ProfileResponse, Error>) in
+        let task = urlSession.objectTask(for: request) { [weak self] (response: Result<ProfileResponse, Error>) in
             self?.task = nil
             
             switch response {
             case .success(let profileResponse):
-                
                 let profile = Profile(from: profileResponse)
                 self?.profile = profile
                 completion(.success(profile))
@@ -84,7 +47,15 @@ final class ProfileService {
         task.resume()
     }
     
-    private func makeUrlRequestForCurrentUserInfo(token: String) -> URLRequest? {
+    // MARK: - Logout
+    
+    func logout() {
+        profile = nil
+    }
+    
+    // MARK: - Private Methods
+    
+    private func makeRequest(token: String) -> URLRequest? {
         guard let defaultURL = Constants.defaultBaseURL else {
             return nil
         }
@@ -92,7 +63,7 @@ final class ProfileService {
         var request = URLRequest(url: url)
         request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         return request
     }
 }

@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - Models
+
 struct OAuthTokenResponseBody: Codable {
     let accessToken: String
 }
@@ -9,13 +11,25 @@ enum AuthServiceError: Error {
     case makeRequestFailed
 }
 
+// MARK: - OAuth2Service
 
 final class OAuth2Service {
+    
+    // MARK: - Shared Instance
+    
     static let shared = OAuth2Service()
+    
+    // MARK: - Properties
+    
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var lastCode: String?
+    
+    // MARK: - Lifecycle
+    
     private init() {}
+    
+    // MARK: - Public Methods
     
     func fetchAuthToken(from code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
@@ -36,34 +50,25 @@ final class OAuth2Service {
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             self?.task = nil
             self?.lastCode = nil
-        
+            
             switch result {
             case .success(let tokenResponse):
                 completion(.success(tokenResponse.accessToken))
-            case .failure(_):
-                let contextError = NSError(
-                    domain: "OAuth2Service.fetchAuthToken",
-                    code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Error fetching token: $error.localizedDescription)"]
-                )
-                AppLogger.error(contextError)
-                completion(.failure(contextError))
+            case .failure(let error):
+                AppLogger.error("Error fetching token: \(error)")
+                completion(.failure(error))
             }
         }
         
         self.task = task
-        
         task.resume()
     }
     
+    // MARK: - Private Methods
+    
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: Constants.oauthTokenURL) else {
-            let urlComponentsError = NSError(
-                domain: "OAuth2Service",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey : "Error creating URLComponents"]
-            )
-            AppLogger.error(urlComponentsError)
+            AppLogger.error("Error creating URLComponents")
             return nil
         }
         urlComponents.queryItems = [
@@ -74,12 +79,7 @@ final class OAuth2Service {
             URLQueryItem(name: "redirect_uri", value: Constants.redirectURI)
         ]
         guard let url = urlComponents.url else {
-            let urlCreationError = NSError(
-                domain: "OAuth2Service",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey : "Error creating URL"]
-            )
-            AppLogger.error(urlCreationError)
+            AppLogger.error("Error creating URL")
             return nil
         }
         var request = URLRequest(url: url)

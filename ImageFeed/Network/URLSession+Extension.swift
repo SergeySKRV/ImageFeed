@@ -1,105 +1,92 @@
-import UIKit
+import Foundation
 
-// MARK: - Enum
+// MARK: - Network Error
 
 enum NetworkError: Error {
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError
     case missingResponse
-    
-    private func parseErrorMessage(from data: Data) -> String? {
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let message = json["message"] as? String {
-                return message
-            }
-        } catch {
-            print("Failed to parse error data: \(error)")
-        }
-        return nil
-    }
+    case decodingError(Error, Data)
 }
 
-// MARK: - Extension
+// MARK: - Shared JSONDecoder
+
+private extension JSONDecoder {
+    static let shared: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
+}
+
+// MARK: - URLSession Extension
 
 extension URLSession {
     
-    func dataTask(for request: URLRequest, completion: @escaping (Result<Data, Error>) -> Void) -> URLSessionTask {
+    // MARK: - Data Task
+    
+    func dataTask(
+        for request: URLRequest,
+        completion: @escaping (Result<Data, Error>) -> Void
+    ) -> URLSessionTask {
         let task = dataTask(with: request) { data, response, error in
             let result = Self.processResponse(data: data, response: response, error: error)
             DispatchQueue.main.async {
                 completion(result)
             }
         }
+        task.resume()
         return task
     }
-    
-    func objectTask<T: Decodable>(for request: URLRequest, completion: @escaping (Result<T, Error>) -> Void) -> URLSessionTask {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+    // MARK: - Object Task (Decodable)
+
+    func objectTask<T: Decodable>(
+        for request: URLRequest,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) -> URLSessionTask {
         let task = dataTask(for: request) { (result: Result<Data, Error>) in
             switch result {
             case .success(let data):
                 do {
-                    let response = try decoder.decode(T.self, from: data)
-                    completion(.success(response))
+                    let decoded = try JSONDecoder.shared.decode(T.self, from: data)
+                    completion(.success(decoded))
                 } catch {
-                    let decodingError = NSError(
-                        domain: "DecodingError",
-                        code: -1,
-                        userInfo: [NSLocalizedDescriptionKey: "Decoding response body error: \(error.localizedDescription)"]
-                    )
-                    AppLogger.error(decodingError)
-                    completion(.failure(error))
+                    AppLogger.error("Decoding failed: $error), data: \(String(data: data, encoding: .utf8) ?? "nil")")
+                    completion(.failure(NetworkError.decodingError(error, data)))
                 }
-                
             case .failure(let error):
-                AppLogger.error(error)
                 completion(.failure(error))
             }
         }
         return task
     }
-    
-    private static func processResponse(data: Data?, response: URLResponse?, error: Error?) -> Result<Data, Error> {
+
+    // MARK: - Response Processing
+
+    private static func processResponse(
+        data: Data?,
+        response: URLResponse?,
+        error: Error?
+    ) -> Result<Data, Error> {
         if let error = error {
-            AppLogger.error(error)
             return .failure(NetworkError.urlRequestError(error))
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            AppLogger.error(NetworkError.missingResponse)
             return .failure(NetworkError.missingResponse)
         }
 
-        let statusCode = httpResponse.statusCode
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            return .failure(NetworkError.httpStatusCode(httpResponse.statusCode))
+        }
 
-        guard (200..<300).contains(statusCode), let data else {
-            if let data, let dataString = String(data: data, encoding: .utf8) {
-
-                let responseDataError = NSError(
-                    domain: "ResponseDataError",
-                    code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Response data: \(dataString)"]
-                )
-                AppLogger.error(responseDataError)
-            }
-            return .failure(NetworkError.httpStatusCode(statusCode))
+        guard let data = data else {
+            return .failure(NetworkError.urlSessionError)
         }
 
         return .success(data)
-    }
-}
-
-extension UIViewController {
-    func buildAllert(withTitle title: String, andMessage message: String, andOkButtonTitle okButtonTitle: String = "Ok") -> UIAlertController {
-        let alert = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: okButtonTitle, style: .default))
-        return alert
     }
 }
