@@ -12,6 +12,6 @@ extension URL {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
             return false
         }
-        return components.path == WebViewViewControllerConstants.redirectPath
+        return components.path == Constants.redirectPath
     }
 }

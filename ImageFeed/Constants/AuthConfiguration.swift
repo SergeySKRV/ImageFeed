@@ -7,8 +7,9 @@ enum Constants {
     static let accessScope = "public+read_user+write_likes"
     
     static let defaultBaseURL = URL(string: "https://api.unsplash.com")!
+    static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
     static let oauthTokenURL = "https://unsplash.com/oauth/token"
-    
+    static let redirectPath = "/oauth/authorize/native"
     static let keychainOAuthTokenKeyName = "oauthToken"
     
     
@@ -40,7 +41,7 @@ struct AuthConfiguration {
             redirectURI: Constants.redirectURI,
             accessScope: Constants.accessScope,
             defaultBaseURL: Constants.defaultBaseURL,
-            authURLString: Constants.oauthTokenURL,
+            authURLString: Constants.unsplashAuthorizeURLString,
             keychainTokenKey: Constants.keychainOAuthTokenKeyName)
     }
 }

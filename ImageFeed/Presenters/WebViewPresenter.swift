@@ -16,11 +16,18 @@ protocol WebViewViewControllerProtocol: AnyObject {
 final class WebViewPresenter: WebViewPresenterProtocol {
     weak var view: WebViewViewControllerProtocol?
     
-    init(view: WebViewViewControllerProtocol) {
+    var authHelper: AuthHelperProtocol
+    
+    init(view: WebViewViewControllerProtocol, authHelper: AuthHelperProtocol = AuthHelper()) {
         self.view = view
+        self.authHelper = authHelper
     }
     
     func viewDidLoad() {
+        guard let request = authHelper.authRequest() else { return }
+        
+        view?.load(request: request)
+        didUpdateProgressValue(0)
         loadAuthView()
     }
     
@@ -34,30 +41,12 @@ final class WebViewPresenter: WebViewPresenterProtocol {
     
     func code(from navigationAction: WKNavigationAction) -> String? {
         guard
-            let url = navigationAction.request.url,
-            url.isOAuthRedirectURL
-        else { return nil }
-        
-        return url.queryParameterValue(forKey: "code")
+            let url = navigationAction.request.url else { return nil }
+        return authHelper.code(from: url)
     }
     
     private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewViewControllerConstants.unsplashAuthorizeURLString) else {
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-        
-        guard let url = urlComponents.url else {
-            return
-        }
-        
-        let request = URLRequest(url: url)
+        guard let request = authHelper.authRequest() else { return }
         view?.load(request: request)
     }
 }
