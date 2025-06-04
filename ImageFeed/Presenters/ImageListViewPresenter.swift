@@ -8,6 +8,8 @@ protocol ImagesListViewProtocol: AnyObject {
     func hideProgressHUD()
 }
 
+// MARK: - ImagesListPresenter
+
 final class ImagesListPresenter {
     
     // MARK: - Properties
@@ -29,7 +31,7 @@ final class ImagesListPresenter {
         imageService.fetchPhotosNextPage()
     }
     
-    func didScrollToLastRow() {
+   func didScrollToLastRow() {
         imageService.fetchPhotosNextPage()
     }
     

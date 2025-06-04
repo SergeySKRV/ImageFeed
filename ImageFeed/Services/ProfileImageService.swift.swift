@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ProfileImageService
 
-final class ProfileImageService {
+final class ProfileImageService: ProfileImageServiceProtocol {
     
     // MARK: - Properties
     

@@ -4,10 +4,22 @@ import Kingfisher
 // MARK: - ProfileViewController
 
 final class ProfileViewController: UIViewController, ProfileViewProtocol {
-    
+  
     // MARK: - Properties
     
-    private var presenter: ProfilePresenter!
+    private var presenter: ProfilePresenter?
+    
+    @available(*, deprecated, message: "Only for testing")
+    func set(presenter: ProfilePresenter) {
+        self.presenter = presenter
+    }
+    
+    //MARK: - Properties for testing via protocol
+    
+    var lastProfileName: String?
+    var lastProfileLogin: String?
+    var lastProfileDescription: String?
+    var lastAvatarURL: URL?
     
     // MARK: - UI Elements
     
@@ -51,79 +63,84 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
         button.tintColor = .ypRed
         return button
     }()
-
-
+    
     // MARK: - Lifecycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        presenter = ProfilePresenter(view: self)
-        presenter.viewDidLoad()
-    }
+       
+       override func viewDidLoad() {
+           super.viewDidLoad()
+           setupUI()
+           setupConstraints()
+           presenter = ProfilePresenter(view: self)
+           presenter?.viewDidLoad()
+       }
 
-    // MARK: - Actions
-    
-    @objc private func didTapLogoutButton() {
-        let alert = UIAlertController(
-            title: "Пока, пока!",
-            message: "Уверены что хотите выйти?",
-            preferredStyle: .alert
-        )
+       // MARK: - Actions
+       
+       @objc private func didTapLogoutButton() {
+           let alert = UIAlertController(
+               title: "Пока, пока!",
+               message: "Уверены что хотите выйти?",
+               preferredStyle: .alert
+           )
 
-        alert.addAction(UIAlertAction(title: "Да", style: .cancel, handler: { [weak self] _ in
-            self?.presenter.logout()
-        }))
-        alert.addAction(UIAlertAction(title: "Нет", style: .default))
-        present(alert, animated: true)
-    }
+           alert.addAction(UIAlertAction(title: "Да", style: .cancel, handler: { [weak self] _ in
+               self?.presenter?.logout()
+           }))
+           alert.addAction(UIAlertAction(title: "Нет", style: .default))
+           present(alert, animated: true)
+       }
 
-    // MARK: - Setup Methods
-    
-    private func setupUI() {
-        view.backgroundColor = .ypBlack
-        view.addSubviews(avatarImageView, nameLabel, loginNameLabel, descriptionLabel, logoutButton)
-    }
+       // MARK: - Setup Methods
+       
+       private func setupUI() {
+           view.backgroundColor = .ypBlack
+           view.addSubviews(avatarImageView, nameLabel, loginNameLabel, descriptionLabel, logoutButton)
+           logoutButton.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
+       }
 
-    private func setupConstraints() {
-        avatarImageView.pin
-            .width(70)
-            .height(70)
-            .top(view.safeAreaLayoutGuide.topAnchor, offset: 32)
-            .leading(view.safeAreaLayoutGuide.leadingAnchor, offset: 16)
+       private func setupConstraints() {
+           avatarImageView.pin
+               .width(70)
+               .height(70)
+               .top(view.safeAreaLayoutGuide.topAnchor, offset: 32)
+               .leading(view.safeAreaLayoutGuide.leadingAnchor, offset: 16)
 
-        logoutButton.pin
-            .width(44)
-            .height(44)
-            .trailing(view.safeAreaLayoutGuide.trailingAnchor, offset: -16)
-            .centerY(to: avatarImageView.centerYAnchor)
+           logoutButton.pin
+               .width(44)
+               .height(44)
+               .trailing(view.safeAreaLayoutGuide.trailingAnchor, offset: -16)
+               .centerY(to: avatarImageView.centerYAnchor)
 
-        nameLabel.pin
-            .leading(avatarImageView.leadingAnchor)
-            .top(avatarImageView.bottomAnchor, offset: 8)
-            .trailing(view.safeAreaLayoutGuide.trailingAnchor, offset: -16)
+           nameLabel.pin
+               .leading(avatarImageView.leadingAnchor)
+               .top(avatarImageView.bottomAnchor, offset: 8)
+               .trailing(view.safeAreaLayoutGuide.trailingAnchor, offset: -16)
 
-        loginNameLabel.pin
-            .top(nameLabel.bottomAnchor, offset: 8)
-            .leading(nameLabel.leadingAnchor)
-            .trailing(nameLabel.trailingAnchor)
+           loginNameLabel.pin
+               .top(nameLabel.bottomAnchor, offset: 8)
+               .leading(nameLabel.leadingAnchor)
+               .trailing(nameLabel.trailingAnchor)
 
-        descriptionLabel.pin
-            .top(loginNameLabel.bottomAnchor, offset: 8)
-            .leading(loginNameLabel.leadingAnchor)
-            .trailing(nameLabel.trailingAnchor)
-    }
+           descriptionLabel.pin
+               .top(loginNameLabel.bottomAnchor, offset: 8)
+               .leading(loginNameLabel.leadingAnchor)
+               .trailing(nameLabel.trailingAnchor)
+       }
 
-    // MARK: - ProfileViewProtocol
-    
-    func updateProfileInfo(name: String?, login: String?, description: String?) {
-        nameLabel.text = name
-        loginNameLabel.text = login
-        self.descriptionLabel.text = description
-    }
-    
-    func updateAvatar(url: URL?) {
-        avatarImageView.kf.setImage(with: url)
-    }
-}
+       // MARK: - ProfileViewProtocol
+       
+       func updateProfileInfo(name: String?, login: String?, description: String?) {
+           lastProfileName = name
+           lastProfileLogin = login
+           lastProfileDescription = description
+           
+           nameLabel.text = name
+           loginNameLabel.text = login
+           self.descriptionLabel.text = description
+       }
+       
+       func updateAvatar(url: URL?) {
+           lastAvatarURL = url
+           avatarImageView.kf.setImage(with: url)
+       }
+   }

@@ -3,7 +3,7 @@ import WebKit
 
 // MARK: - ProfileLogoutService
 
-final class ProfileLogoutService {
+final class ProfileLogoutService: ProfileLogoutServiceProtocol {
     
     // MARK: - Shared Instance
     

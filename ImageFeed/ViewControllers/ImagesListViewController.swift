@@ -1,5 +1,7 @@
 import UIKit
 
+// MARK: - ImagesListViewController
+
 final class ImagesListViewController: UIViewController, ImagesListViewProtocol {
     
     // MARK: - Properties
