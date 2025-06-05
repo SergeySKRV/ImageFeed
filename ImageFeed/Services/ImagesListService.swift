@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ImageListService
 
-final class ImageListService {
+final class ImageListService: NSObject, ImageListServiceProtocol {
     
     // MARK: - Constants
     
@@ -15,7 +15,7 @@ final class ImageListService {
     
     // MARK: - Properties
     
-    private(set) var photos: [Photo] = []
+    var photos: [Photo] = []
     private var lastLoadedPage: Int = 0
     private var oauth2TokenStorage = OAuth2TokenStorage.shared
     private var task: URLSessionTask?
@@ -24,7 +24,7 @@ final class ImageListService {
     
     // MARK: - Lifecycle
     
-    private init() {}
+    private override init() {}
     
     // MARK: - Public API
     

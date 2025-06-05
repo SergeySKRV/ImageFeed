@@ -9,6 +9,18 @@ final class ImagesListViewController: UIViewController, ImagesListViewProtocol {
     private var presenter: ImagesListPresenter!
     private let showSingleImageSegueIdentifier: String = "ShowSingleImage"
     
+    // MARK: - Internal methods for testing only
+    
+    @available(*, deprecated, message: "Only for testing")
+    func set(presenter: ImagesListPresenter) {
+        self.presenter = presenter
+    }
+    
+    @available(*, deprecated, message: "Only for testing")
+    func triggerWillDisplayLastItem() {
+        presenter.didScrollToLastRow()
+    }
+    
     // MARK: - UI Elements
     
     private lazy var tableView: UITableView = {
@@ -27,7 +39,11 @@ final class ImagesListViewController: UIViewController, ImagesListViewProtocol {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
-        presenter = ImagesListPresenter(view: self)
+        
+        if presenter == nil {
+            presenter = ImagesListPresenter(view: self)
+        }
+        
         subscribeToImageServiceUpdates()
         presenter.viewDidLoad()
     }
@@ -76,7 +92,7 @@ extension ImagesListViewController: UITableViewDataSource {
         guard let photo = presenter.photo(at: indexPath.row) else { return cell }
         
         guard let photoUrl = URL(string: photo.thumbImageURL) else {
-            return cell // или установить placeholder
+            return cell
         }
         
         cell.configure(photoUrl, andDate: photo.createdAt, andIsLiked: photo.isLiked)
