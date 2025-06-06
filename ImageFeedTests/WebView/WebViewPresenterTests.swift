@@ -28,12 +28,12 @@ final class WebViewPresenterTests: XCTestCase {
     func testPresenterCallsLoadRequest() {
         // Given
         let viewControllerSpy = WebViewViewControllerSpy()
-        let authHelperStub = AuthHelper() 
+        let authHelperStub = AuthHelper()
         let presenter = WebViewPresenter(view: viewControllerSpy, authHelper: authHelperStub)
-
+        
         // When
         presenter.viewDidLoad()
-
+        
         // Then
         XCTAssertTrue(viewControllerSpy.loadRequestCalled)
         XCTAssertNotNil(viewControllerSpy.lastRequest)
@@ -57,7 +57,7 @@ final class WebViewPresenterTests: XCTestCase {
         // Given
         let expectedCode = "test_code"
         let authHelper = AuthHelper()
-     
+        
         var components = URLComponents(string: "https://unsplash.com/oauth/authorize/native")!
         components.queryItems = [URLQueryItem(name: "code", value: expectedCode)]
         
@@ -73,7 +73,7 @@ final class WebViewPresenterTests: XCTestCase {
         XCTAssertEqual(extractedCode, expectedCode)
     }
     
-    //MARK: - testAuthHelperAuthURL
+    // MARK: - testAuthHelperAuthURL
     
     func testAuthHelperAuthURL() {
         // Given

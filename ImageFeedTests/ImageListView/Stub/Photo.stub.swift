@@ -1,6 +1,8 @@
 import Foundation
 @testable import ImageFeed
 
+// MARK: - Photo Stub
+
 extension Photo {
     static func stub(
         id: String = "test_id",

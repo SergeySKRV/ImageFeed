@@ -1,6 +1,8 @@
 import Foundation
 import UIKit
 
+// MARK: - Protocols
+
 protocol ProfileViewProtocol: AnyObject {
     func updateProfileInfo(name: String?, login: String?, description: String?)
     func updateAvatar(url: URL?)
@@ -10,6 +12,7 @@ protocol ProfileViewProtocol: AnyObject {
     var lastProfileDescription: String? { get }
     var lastAvatarURL: URL? { get }
 }
+
 // MARK: - ProfilePresenter
 
 final class ProfilePresenter {

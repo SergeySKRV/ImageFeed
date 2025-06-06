@@ -1,9 +1,13 @@
 import Foundation
 
+// MARK: - ProfileImageServiceProtocol
+
 protocol ProfileImageServiceProtocol {
     var avatarURL: String? { get }
     static var didChangeNotification: Notification.Name { get }
 }
+
+// MARK: - ProfileImageServiceStub
 
 final class ProfileImageServiceStub: ProfileImageServiceProtocol {
     var avatarURL: String?

@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 
-// MARK: - ProfileViewController
+// MARK: - ProfileViewController Class
 
 final class ProfileViewController: UIViewController, ProfileViewProtocol {
     
@@ -9,12 +9,14 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
     
     private var presenter: ProfilePresenter?
     
+    // MARK: - Internal Methods (for Testing Only)
+    
     @available(*, deprecated, message: "Only for testing")
     func set(presenter: ProfilePresenter) {
         self.presenter = presenter
     }
     
-    //MARK: - Properties for testing via protocol
+    // MARK: - Testable State Properties
     
     var lastProfileName: String?
     var lastProfileLogin: String?
@@ -93,7 +95,7 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
         
         let noAction = UIAlertAction(title: "Нет", style: .default)
         noAction.accessibilityIdentifier = "alertNoButton"
-
+        
         alert.addAction(yesAction)
         alert.addAction(noAction)
         present(alert, animated: true)
@@ -154,4 +156,4 @@ final class ProfileViewController: UIViewController, ProfileViewProtocol {
     }
 }
 
- 
+

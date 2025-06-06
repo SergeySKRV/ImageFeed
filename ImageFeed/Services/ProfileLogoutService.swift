@@ -33,6 +33,7 @@ final class ProfileLogoutService: ProfileLogoutServiceProtocol {
     // MARK: - Private Methods
     
     private func cleanCookies() {
+        
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         
         let dataStore = WKWebsiteDataStore.default()

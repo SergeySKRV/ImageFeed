@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - ImageListServiceProtocol
+
 protocol ImageListServiceProtocol {
     var photos: [Photo] { get set }
     static var didChangeNotification: Notification.Name { get }

@@ -2,19 +2,21 @@ import XCTest
 
 final class ImageFeedUITests: XCTestCase {
     private let app = XCUIApplication()
-
+    
     override func setUpWithError() throws {
         continueAfterFailure = false
         app.launch()
     }
-
+    
+    // MARK: - Auth Test
+    
     func testAuth() throws {
         app.buttons["Authenticate"].tap()
         
         let webView = app.webViews["UnsplashWebView"]
         
         XCTAssertTrue(webView.waitForExistence(timeout: 5))
-
+        
         let loginTextField = webView.descendants(matching: .textField).element
         XCTAssertTrue(loginTextField.waitForExistence(timeout: 5))
         
@@ -36,6 +38,7 @@ final class ImageFeedUITests: XCTestCase {
         
         XCTAssertTrue(cell.waitForExistence(timeout: 5))
     }
+    // MARK: - Feed Test
     
     func testFeed() throws {
         let tablesQuery = app.tables
@@ -57,30 +60,28 @@ final class ImageFeedUITests: XCTestCase {
         sleep(2)
         
         let image = app.scrollViews.images.element(boundBy: 0)
-        // Zoom in
-        image.pinch(withScale: 3, velocity: 1) // zoom in
-        // Zoom out
+
+        image.pinch(withScale: 3, velocity: 1)
         image.pinch(withScale: 0.5, velocity: -1)
         
         let navBackButtonWhiteButton = app.buttons["nav back button white"]
         navBackButtonWhiteButton.tap()
     }
+    // MARK: - Profile Logout Test
     
     func testProfileLogout() throws {
-        // Given
+       
         let profileButton = app.tabBars.buttons.element(boundBy: 1)
         XCTAssertTrue(profileButton.exists)
         profileButton.tap()
-
-        // When
+        
         let logoutButton = app.buttons["logoutButton"]
         XCTAssertTrue(logoutButton.exists)
         logoutButton.tap()
 
-        // Then
         let alert = app.alerts["Пока, пока!"]
         XCTAssertTrue(alert.waitForExistence(timeout: 5))
-
+        
         let yesButton = app.buttons["alertYesButton"]
         XCTAssertTrue(yesButton.exists)
         yesButton.tap()

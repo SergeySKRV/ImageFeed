@@ -10,7 +10,7 @@ struct PhotosResponse: Decodable {
     let description: String?
     let urls: PhotoUrlsResponse
     let likedByUser: Bool
-
+    
     func toPhoto() -> Photo {
         return Photo(
             id: id,

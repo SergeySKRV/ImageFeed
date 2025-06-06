@@ -1,6 +1,8 @@
 import Foundation
 import UIKit
 
+// MARK: - Protocols
+
 protocol ImagesListViewProtocol: AnyObject {
     func updateTableViewAnimated(oldCount: Int, newCount: Int)
     func reloadCell(at indexPath: IndexPath)

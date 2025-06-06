@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - Constants
+
 enum Constants {
     static let accessKey = "_nfWaBfFXCEKdxk6YW-HHwN-fkmBfX4Q2rlMie_wuZc"
     static let secretKey = "BMYJnTs0bAApo4bu5S9cDh3qU8nSav1XdHunZtEgG2I"
@@ -14,6 +16,8 @@ enum Constants {
     
     
 }
+
+// MARK: - AuthConfiguration
 
 struct AuthConfiguration {
     let accessKey: String

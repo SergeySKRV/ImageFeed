@@ -1,14 +1,16 @@
 import UIKit
 import WebKit
 
-// MARK: - Delegate Protocol
+// MARK: - WebViewViewControllerDelegate Protocol
 
 protocol WebViewViewControllerDelegate: AnyObject {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
+    
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-// MARK: - WebViewViewController
+// MARK: - WebViewViewController Class
 
 final class WebViewViewController: UIViewController {
     
@@ -30,6 +32,7 @@ final class WebViewViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: WebViewViewControllerDelegate?
+    
     private var presenter: WebViewPresenterProtocol?
     
     private var estimatedProgressObservation: NSKeyValueObservation?
@@ -49,12 +52,13 @@ final class WebViewViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         if isMovingFromParent && !isBeingDismissed && !isMovingToParent {
             delegate?.webViewViewControllerDidCancel(self)
         }
     }
     
-    // MARK: - Setup UI
+    // MARK: - Setup UI Methods
     
     private func setupUI() {
         view.backgroundColor = .ypWhite
@@ -90,9 +94,10 @@ final class WebViewViewController: UIViewController {
     }
 }
 
-// MARK: - WebViewViewControllerProtocol
+// MARK: - WebViewViewControllerProtocol Implementation
 
 extension WebViewViewController: WebViewViewControllerProtocol {
+    
     func load(request: URLRequest) {
         webView.load(request)
     }
@@ -106,9 +111,10 @@ extension WebViewViewController: WebViewViewControllerProtocol {
     }
 }
 
-// MARK: - WKNavigationDelegate
+// MARK: - WKNavigationDelegate Implementation
 
 extension WebViewViewController: WKNavigationDelegate {
+    
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
         if let code = presenter?.code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)

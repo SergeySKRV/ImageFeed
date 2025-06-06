@@ -103,11 +103,11 @@ final class ImageListService: NSObject, ImageListServiceProtocol {
     // MARK: - Private Methods (Network Requests)
     
     private func makeRequestForImageList(forPageNumber pageNumber: Int,
-                                       andPerPageCount perPageCount: Int,
-                                       andToken token: String) -> URLRequest? {
+                                         andPerPageCount perPageCount: Int,
+                                         andToken token: String) -> URLRequest? {
         let baseUrl = Constants.defaultBaseURL
         guard var urlComponents = URLComponents(url: baseUrl.appendingPathComponent(photosApiUrl),
-                                             resolvingAgainstBaseURL: true) else {
+                                                resolvingAgainstBaseURL: true) else {
             AppLogger.error("Error creating URLComponents")
             return nil
         }
@@ -133,7 +133,7 @@ final class ImageListService: NSObject, ImageListServiceProtocol {
     
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
         assert(Thread.isMainThread)
-
+        
         guard let token = oauth2TokenStorage.token else {
             return
         }
@@ -153,7 +153,7 @@ final class ImageListService: NSObject, ImageListServiceProtocol {
                 completion(.failure(error))
             }
         }
-
+        
         task.resume()
     }
     
@@ -183,13 +183,13 @@ final class ImageListService: NSObject, ImageListServiceProtocol {
             let photo = photos[index]
             
             let newPhoto = Photo(
-               id: photo.id,
-               size: photo.size,
-               createdAt: photo.createdAt,
-               welcomeDescription: photo.welcomeDescription,
-               thumbImageURL: photo.thumbImageURL,
-               largeImageURL: photo.largeImageURL,
-               isLiked: !photo.isLiked
+                id: photo.id,
+                size: photo.size,
+                createdAt: photo.createdAt,
+                welcomeDescription: photo.welcomeDescription,
+                thumbImageURL: photo.thumbImageURL,
+                largeImageURL: photo.largeImageURL,
+                isLiked: !photo.isLiked
             )
             
             photos[index] = newPhoto

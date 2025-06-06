@@ -1,6 +1,6 @@
 import UIKit
 
-// MARK: - ImagesListViewController
+// MARK: - ImagesListViewController Class
 
 final class ImagesListViewController: UIViewController, ImagesListViewProtocol {
     
