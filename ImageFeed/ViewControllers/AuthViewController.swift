@@ -31,6 +31,7 @@ final class AuthViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
+        button.accessibilityIdentifier = "Authenticate"
         return button
     }()
     

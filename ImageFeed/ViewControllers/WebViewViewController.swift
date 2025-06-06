@@ -16,6 +16,7 @@ final class WebViewViewController: UIViewController {
     
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
+        webView.accessibilityIdentifier = "UnsplashWebView"
         return webView
     }()
     
