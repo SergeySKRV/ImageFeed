@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ProfileImageService
 
-final class ProfileImageService {
+final class ProfileImageService: ProfileImageServiceProtocol {
     
     // MARK: - Properties
     
@@ -67,13 +67,11 @@ final class ProfileImageService {
     // MARK: - Private Methods
     
     private func makeRequest(username: String, token: String) -> URLRequest? {
-        guard let defaultURL = Constants.defaultBaseURL else {
+        let fullPath = self.publicProfileApiURL.replacingOccurrences(of: ":username", with: username)
+        guard let url = URL(string: fullPath, relativeTo: Constants.defaultBaseURL) else {
             return nil
         }
         
-        let url = defaultURL.appendingPathComponent(
-            self.publicProfileApiURL.replacingOccurrences(of: ":username", with: username)
-        )
         var request = URLRequest(url: url)
         request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

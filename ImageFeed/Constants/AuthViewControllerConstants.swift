@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - AuthViewController Constants
+
 enum AuthViewControllerConstants {
     static let loginButtonTitle: String = "Войти"
     static let errorAlertTitle: String = "Что-то пошло не так"

@@ -6,13 +6,16 @@ protocol ImagesListCellDelegate: AnyObject {
     func imageListCellDidTapLike(_ cell: ImagesListCell)
 }
 
-// MARK: - ImagesListCell
+// MARK: - ImagesListCell Class
 
 final class ImagesListCell: UITableViewCell {
     
-    // MARK: - Properties
+    // MARK: - Constants
     
     static let reuseIdentifier = "ImagesListCell"
+    
+    // MARK: - Properties
+    
     weak var delegate: ImagesListCellDelegate?
     
     // MARK: - UI Elements

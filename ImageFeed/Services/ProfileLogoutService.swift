@@ -3,7 +3,7 @@ import WebKit
 
 // MARK: - ProfileLogoutService
 
-final class ProfileLogoutService {
+final class ProfileLogoutService: ProfileLogoutServiceProtocol {
     
     // MARK: - Shared Instance
     
@@ -33,6 +33,7 @@ final class ProfileLogoutService {
     // MARK: - Private Methods
     
     private func cleanCookies() {
+        
         HTTPCookieStorage.shared.removeCookies(since: .distantPast)
         
         let dataStore = WKWebsiteDataStore.default()

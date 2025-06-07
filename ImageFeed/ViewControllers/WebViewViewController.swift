@@ -1,14 +1,16 @@
 import UIKit
 import WebKit
 
-// MARK: - Delegate Protocol
+// MARK: - WebViewViewControllerDelegate Protocol
 
 protocol WebViewViewControllerDelegate: AnyObject {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
+    
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-// MARK: - WebViewViewController
+// MARK: - WebViewViewController Class
 
 final class WebViewViewController: UIViewController {
     
@@ -16,6 +18,7 @@ final class WebViewViewController: UIViewController {
     
     private lazy var webView: WKWebView = {
         let webView = WKWebView()
+        webView.accessibilityIdentifier = "UnsplashWebView"
         return webView
     }()
     
@@ -30,6 +33,8 @@ final class WebViewViewController: UIViewController {
     
     weak var delegate: WebViewViewControllerDelegate?
     
+    private var presenter: WebViewPresenterProtocol?
+    
     private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: - Lifecycle
@@ -37,21 +42,23 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        presenter = WebViewPresenter(view: self)
         setupUI()
         setupConstraints()
         setupProgressObservation()
         setupWebView()
-        loadAuthView()
+        presenter?.viewDidLoad()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
         if isMovingFromParent && !isBeingDismissed && !isMovingToParent {
             delegate?.webViewViewControllerDidCancel(self)
         }
     }
     
-    // MARK: - Setup UI
+    // MARK: - Setup UI Methods
     
     private func setupUI() {
         view.backgroundColor = .ypWhite
@@ -77,60 +84,43 @@ final class WebViewViewController: UIViewController {
             \.estimatedProgress,
              options: [],
              changeHandler: { [weak self] _, _ in
-                 self?.updateProgress()
+                 self?.presenter?.didUpdateProgressValue(self?.webView.estimatedProgress ?? 0)
              }
         )
-    }
-    
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1) <= 0.001
     }
     
     private func setupWebView() {
         webView.navigationDelegate = self
     }
+}
+
+// MARK: - WebViewViewControllerProtocol Implementation
+
+extension WebViewViewController: WebViewViewControllerProtocol {
     
-    private func loadAuthView() {
-        guard var urlComponents = URLComponents(string: WebViewViewControllerConstants.unsplashAuthorizeURLString) else {
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-        
-        guard let url = urlComponents.url else {
-            return
-        }
-        
-        let request = URLRequest(url: url)
+    func load(request: URLRequest) {
         webView.load(request)
-        updateProgress()
+    }
+    
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+    
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
     }
 }
 
-//MARK: - WKNavigationDelegate
+// MARK: - WKNavigationDelegate Implementation
 
 extension WebViewViewController: WKNavigationDelegate {
+    
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void) {
-        if let code = code(from: navigationAction) {
+        if let code = presenter?.code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
             decisionHandler(.allow)
         }
-    }
-    
-    private func code(from navigationAction: WKNavigationAction) -> String? {
-        guard
-            let url = navigationAction.request.url,
-            url.isOAuthRedirectURL
-        else { return nil }
-        
-        return url.queryParameterValue(forKey: "code")
     }
 }

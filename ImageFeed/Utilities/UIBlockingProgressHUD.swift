@@ -1,7 +1,7 @@
 import UIKit
 import ProgressHUD
 
-//MARK: - Class
+// MARK: - UIBlockingProgressHUD Class
 
 final class UIBlockingProgressHUD {
     

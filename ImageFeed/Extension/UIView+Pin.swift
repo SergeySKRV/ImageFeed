@@ -1,10 +1,14 @@
 import UIKit
 
+// MARK: - Pin Layout Class
+
 final class Pin {
     private let view: UIView
     init(view: UIView) {
         self.view = view
     }
+    
+    // MARK: - Position Constraints
     
     @discardableResult
     func top(_ anchor: NSLayoutYAxisAnchor, offset: CGFloat = 0) -> Self {
@@ -73,6 +77,8 @@ final class Pin {
         return self
     }
 }
+
+// MARK: - UIView Extension for Pin
 
 extension UIView {
     var pin: Pin {

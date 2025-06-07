@@ -1,10 +1,13 @@
 import UIKit
 
+// MARK: - SplashViewController Class
+
 final class SplashViewController: UIViewController {
     
     // MARK: - Properties
     
     private var oauth2TokenStorage = OAuth2TokenStorage.shared
+    
     private var profileService: ProfileService = ProfileService.shared
     
     // MARK: - UI Elements
@@ -39,8 +42,10 @@ final class SplashViewController: UIViewController {
             assertionFailure("Unable to get UIWindow")
             return
         }
+        
         let tabBarViewController = TabBarController()
         window.rootViewController = tabBarViewController
+        
         UIView.transition(
             with: window,
             duration: 0.3,
@@ -53,13 +58,15 @@ final class SplashViewController: UIViewController {
     private func showUnauthorizedArea() {
         let navigationViewController = UINavigationController()
         navigationViewController.modalPresentationStyle = .fullScreen
+        
         let authViewController = AuthViewController()
         authViewController.delegate = self
+        
         navigationViewController.viewControllers = [authViewController]
         self.show(navigationViewController, sender: self)
     }
     
-    // MARK: - Configure UI
+    // MARK: - UI Setup Methods
     
     private func setupUI() {
         view.backgroundColor = .ypBlack
@@ -72,17 +79,19 @@ final class SplashViewController: UIViewController {
             .centerY(to: view.centerYAnchor)
     }
     
-    // MARK: - Auth Flow
+    // MARK: - Auth Flow Logic
     
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
         profileService.fetchProfile(token) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
             guard let self else { return }
+            
             switch result {
             case .success(let profile):
                 ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
                 self.showAuthorizedArea()
+                
             case .failure(let error):
                 let alert = buildAlert(
                     withTitle: "Что-то пошло не так",

@@ -1,16 +1,25 @@
 import UIKit
 
-// MARK: - ImagesListViewController
+// MARK: - ImagesListViewController Class
 
-final class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController, ImagesListViewProtocol {
     
     // MARK: - Properties
     
-    private let photosName: [String] = Array(0..<20).map { "\($0)" }
+    private var presenter: ImagesListPresenter!
     private let showSingleImageSegueIdentifier: String = "ShowSingleImage"
-    private let imageService = ImageListService.shared
-    private var imageServiceObserver: NSObjectProtocol?
-    private(set) var photos: [Photo] = []
+    
+    // MARK: - Internal methods for testing only
+    
+    @available(*, deprecated, message: "Only for testing")
+    func set(presenter: ImagesListPresenter) {
+        self.presenter = presenter
+    }
+    
+    @available(*, deprecated, message: "Only for testing")
+    func triggerWillDisplayLastItem() {
+        presenter.didScrollToLastRow()
+    }
     
     // MARK: - UI Elements
     
@@ -30,8 +39,13 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        
+        if presenter == nil {
+            presenter = ImagesListPresenter(view: self)
+        }
+        
         subscribeToImageServiceUpdates()
-        imageService.fetchPhotosNextPage()
+        presenter.viewDidLoad()
     }
     
     // MARK: - Setup Methods
@@ -49,31 +63,14 @@ final class ImagesListViewController: UIViewController {
             .bottom(view.safeAreaLayoutGuide.bottomAnchor)
     }
     
-    private func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        let photo = photos[indexPath.row]
-        guard let photoUrl = URL(string: photo.thumbImageURL) else { return }
-        cell.configure(photoUrl, andDate: photo.createdAt, andIsLiked: photo.isLiked)
-    }
-    
-    private func showSingleImage(for indexPath: IndexPath) {
-        let viewController = SingleImageViewController()
-        let photo = photos[indexPath.row]
-        guard let photoUrl = URL(string: photo.largeImageURL) else { return }
-        
-        viewController.setImage(imageUrl: photoUrl)
-        viewController.modalPresentationStyle = .fullScreen
-        present(viewController, animated: true)
-    }
-    
     private func subscribeToImageServiceUpdates() {
-        imageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ImageListService.didChangeNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] _ in
-                self?.updateTableViewAnimated()
-            }
+        NotificationCenter.default.addObserver(
+            forName: ImageListService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.presenter.updatePhotos()
+        }
     }
 }
 
@@ -81,44 +78,56 @@ final class ImagesListViewController: UIViewController {
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+        return presenter.photos.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let imageListCell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ImagesListCell.reuseIdentifier,
             for: indexPath
         ) as? ImagesListCell else {
             return UITableViewCell()
         }
         
-        configCell(for: imageListCell, with: indexPath)
-        imageListCell.delegate = self
+        guard let photo = presenter.photo(at: indexPath.row) else { return cell }
         
-        return imageListCell
+        guard let photoUrl = URL(string: photo.thumbImageURL) else {
+            return cell
+        }
+        
+        cell.configure(photoUrl, andDate: photo.createdAt, andIsLiked: photo.isLiked)
+        cell.delegate = self
+        
+        return cell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row + 1 == photos.count {
-            imageService.fetchPhotosNextPage()
+        if indexPath.row + 1 == presenter.photos.count {
+            presenter.didScrollToLastRow()
         }
     }
     
-    func updateTableViewAnimated() {
-        let oldCount = photos.count
-        let newCount = imageService.photos.count
-        
-        if oldCount != newCount {
-            photos = imageService.photos
-            DispatchQueue.main.async { [weak self] in
-                self?.tableView.performBatchUpdates({
-                    let indexPaths = (oldCount..<newCount).map { i in
-                        IndexPath(row: i, section: 0)
-                    }
-                    self?.tableView.insertRows(at: indexPaths, with: .automatic)
-                }, completion: nil)
-            }
-        }
+    func updateTableViewAnimated(oldCount: Int, newCount: Int) {
+        let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+        tableView.performBatchUpdates({
+            tableView.insertRows(at: indexPaths, with: .automatic)
+        }, completion: nil)
+    }
+    
+    func reloadCell(at indexPath: IndexPath) {
+        tableView.reloadRows(at: [indexPath], with: .none)
+    }
+    
+    func showErrorMessage() {
+        let alert = buildAlert(
+            withTitle: "Что-то пошло не так",
+            andMessage: "Не удалось изменить лайк"
+        )
+        present(alert, animated: true)
+    }
+    
+    func hideProgressHUD() {
+        UIBlockingProgressHUD.dismiss()
     }
 }
 
@@ -126,7 +135,7 @@ extension ImagesListViewController: UITableViewDataSource {
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let photo = photos[indexPath.row]
+        let photo = presenter.photos[indexPath.row]
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
         let imageWidth = photo.size.width
@@ -139,38 +148,22 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        showSingleImage(for: indexPath)
+        if presenter.didSelectRow(at: indexPath) {
+            let viewController = SingleImageViewController()
+            guard let photo = presenter.photo(at: indexPath.row),
+                  let photoUrl = URL(string: photo.largeImageURL) else { return }
+            viewController.setImage(imageUrl: photoUrl)
+            viewController.modalPresentationStyle = .fullScreen
+            present(viewController, animated: true)
+        }
     }
 }
 
 // MARK: - ImagesListCellDelegate
 
 extension ImagesListViewController: ImagesListCellDelegate {
-    private enum LikeAllertCaptions {
-        static let title = "Что-то пошло не так"
-        static let message = "Не удалось изменить лайк"
-    }
-    
     func imageListCellDidTapLike(_ cell: ImagesListCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = photos[indexPath.row]
-        UIBlockingProgressHUD.show()
-        imageService.changeLike(photoId: photo.id, isLike: !photo.isLiked) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success:
-                self.photos = self.imageService.photos
-                cell.setIsLiked(isLiked: self.photos[indexPath.row].isLiked)
-                UIBlockingProgressHUD.dismiss()
-            case .failure(let error):
-                UIBlockingProgressHUD.dismiss()
-                let alert = buildAlert(
-                    withTitle: LikeAllertCaptions.title,
-                    andMessage: LikeAllertCaptions.message
-                )
-                present(alert, animated: true)
-                AppLogger.error("Error: \(error)")
-            }
-        }
+        presenter.changeLike(for: indexPath.row)
     }
 }

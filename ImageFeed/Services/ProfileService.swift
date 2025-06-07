@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ProfileService
 
-final class ProfileService {
+final class ProfileService: ProfileServiceProtocol {
     
     // MARK: - Properties
     
@@ -56,14 +56,15 @@ final class ProfileService {
     // MARK: - Private Methods
     
     private func makeRequest(token: String) -> URLRequest? {
-        guard let defaultURL = Constants.defaultBaseURL else {
+        let url = Constants.defaultBaseURL.appendingPathComponent(currentUserURI)
+        
+        guard url.isFileURL || URL(string: url.absoluteString) != nil else {
             return nil
         }
-        let url = defaultURL.appendingPathComponent(currentUserURI)
+        
         var request = URLRequest(url: url)
         request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
         return request
     }
 }

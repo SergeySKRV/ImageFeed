@@ -1,19 +1,20 @@
 import UIKit
 import SwiftKeychainWrapper
 
-// MARK: - Delegate Protocol
+// MARK: - AuthViewControllerDelegate Protocol
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
 }
 
-// MARK: - AuthViewController
+// MARK: - AuthViewController Class
 
 final class AuthViewController: UIViewController {
     
     // MARK: - Properties
     
     private let oauth2Service = OAuth2Service.shared
+    
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - UI Elements
@@ -31,6 +32,7 @@ final class AuthViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
+        button.accessibilityIdentifier = "Authenticate"
         return button
     }()
     
@@ -42,12 +44,13 @@ final class AuthViewController: UIViewController {
         setupConstraints()
     }
     
-    // MARK: - Setup UI
+    // MARK: - Setup UI Methods
     
     private func setupUI() {
         view.backgroundColor = .ypBlack
         view.addSubviews(logoImageView, loginButton)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        
         navigationController?.navigationBar.backIndicatorImage = UIImage(resource: .navBackButton)
         navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(resource: .navBackButton)
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
@@ -75,7 +78,7 @@ final class AuthViewController: UIViewController {
     }
 }
 
-//MARK: - WebViewViewControllerDelegate
+// MARK: - WebViewViewControllerDelegate
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
@@ -89,16 +92,19 @@ extension AuthViewController: WebViewViewControllerDelegate {
         oauth2Service.fetchAuthToken(from: code) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
             guard let self else { return }
+            
             switch result {
             case .success(let token):
                 KeychainWrapper.standard.set(token, forKey: Constants.keychainOAuthTokenKeyName)
                 delegate?.didAuthenticate(self)
+                
             case .failure(let error):
-                AppLogger.error("Error fetching token: \(error)")
-                let alert = buildAlert(
+                AppLogger.error("Error fetching token: $error)")
+                let alert = self.buildAlert(
                     withTitle: AuthViewControllerConstants.errorAlertTitle,
-                    andMessage: AuthViewControllerConstants.errorAlertMessage)
-                present(alert, animated: true)
+                    andMessage: AuthViewControllerConstants.errorAlertMessage
+                )
+                self.present(alert, animated: true)
             }
         }
     }
