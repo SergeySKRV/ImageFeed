@@ -11,6 +11,9 @@ final class ImageFeedUITests: XCTestCase {
     // MARK: - Auth Test
     
     func testAuth() throws {
+        let username = ProcessInfo.processInfo.environment["TEST_USERNAME"] ?? "default_user"
+        let password = ProcessInfo.processInfo.environment["TEST_PASSWORD"] ?? "default_password"
+        
         app.buttons["Authenticate"].tap()
         
         let webView = app.webViews["UnsplashWebView"]
@@ -21,14 +24,14 @@ final class ImageFeedUITests: XCTestCase {
         XCTAssertTrue(loginTextField.waitForExistence(timeout: 5))
         
         loginTextField.tap()
-        loginTextField.typeText("ap0llyon@yandex.ru")
-        app.swipeUp()
+        loginTextField.typeText(username)
+        app.buttons["Done"].tap()
         
         let passwordTextField = webView.descendants(matching: .secureTextField).element
         XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5))
         
         passwordTextField.tap()
-        passwordTextField.typeText("dT6SphV8")
+        passwordTextField.typeText(password)
         app.buttons["Done"].tap()
         
         webView.buttons["Login"].tap()
@@ -51,6 +54,9 @@ final class ImageFeedUITests: XCTestCase {
         let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
         
         cellToLike.buttons["like button off"].tap()
+        
+        sleep(2)
+        
         cellToLike.buttons["like button on"].tap()
         
         sleep(2)
